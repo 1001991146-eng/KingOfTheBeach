@@ -1,0 +1,1525 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>King of the Beach - OOP Edition</title>
+    <!-- Tailwind CSS for modern responsive styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Heebo for modern Hebrew look -->
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Heebo', sans-serif;
+            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+        }
+        .beach-sand {
+            background-color: #fef08a;
+            background-image: radial-gradient(#fde047 1px, transparent 1px);
+            background-size: 8px 8px;
+        }
+        .water-wave {
+            background: linear-gradient(180deg, #38bdf8 0%, #0284c7 100%);
+            animation: wave 4s ease-in-out infinite alternate;
+        }
+        @keyframes wave {
+            0% { transform: translateY(0) scaleY(1); }
+            100% { transform: translateY(-5px) scaleY(1.05); }
+        }
+        .float-emoji {
+            animation: floatUp 2.5s ease-out forwards;
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(20px); opacity: 0; }
+            10% { opacity: 1; }
+            100% { transform: translateY(-80px); opacity: 0; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col text-slate-800 selection:bg-amber-200">
+
+    <!-- Top Navigation Bar -->
+    <header class="bg-white/80 backdrop-blur shadow-md sticky top-0 z-50 px-4 py-3">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <span class="text-4xl">🏖️</span>
+                <div>
+                    <h1 class="text-2xl font-black text-amber-600 tracking-tight">King of the Beach</h1>
+                    <p class="text-xs text-slate-500 font-bold">מהדורת הקיץ של הנדסת תוכנה: לומדים OOP בכיף!</p>
+                </div>
+            </div>
+            
+            <!-- Language and Progress Controls -->
+            <div class="flex flex-wrap items-center gap-3">
+                <!-- Offline / Online Status Badge -->
+                <span id="connection-status-badge" class="text-[10px] bg-sky-150 text-sky-700 border border-sky-300 px-2 py-1 rounded-full font-black">
+                    🔄 בודק חיבור...
+                </span>
+
+                <!-- User Profile & Logout -->
+                <div class="bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-xl flex items-center gap-2 text-xs font-bold text-slate-700">
+                    <span>👤</span>
+                    <span id="player-display-name">שחקן אורח</span>
+                    <button id="btn-logout" onclick="triggerSignOut()" class="mr-2 text-rose-600 hover:text-rose-800 transition-colors hidden" title="התנתק מהמערכת">
+                        (התנתק 🚪)
+                    </button>
+                </div>
+
+                <!-- Language Toggle -->
+                <div class="bg-slate-100 p-1 rounded-xl flex items-center gap-1 border border-slate-200">
+                    <button id="btn-cs" onclick="setLanguage('CS')" class="px-3 py-1.5 rounded-lg text-sm font-black transition-all bg-amber-500 text-white shadow">C#</button>
+                    <button id="btn-java" onclick="setLanguage('Java')" class="px-3 py-1.5 rounded-lg text-sm font-black transition-all text-slate-600">Java</button>
+                </div>
+
+                <!-- Score / Coconut Coins -->
+                <div class="bg-amber-100 border border-amber-300 px-4 py-2 rounded-2xl flex items-center gap-2 shadow-sm">
+                    <span class="text-xl">🥥</span>
+                    <span id="coconut-coins" class="font-extrabold text-amber-800 text-lg">100</span>
+                    <span class="text-xs font-bold text-amber-700">קוקוסים</span>
+                </div>
+
+                <!-- Beach Reputation -->
+                <div class="bg-rose-100 border border-rose-200 px-4 py-2 rounded-2xl flex items-center gap-2 shadow-sm">
+                    <span class="text-xl">🔥</span>
+                    <span id="reputation-score" class="font-extrabold text-rose-800 text-lg">0</span>
+                    <span class="text-xs font-bold text-rose-700">מוניטין</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="flex-grow max-w-6xl w-full mx-auto p-4 grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Left Column: Instructions & OOP Code Editor Panel (7 Columns) -->
+        <section class="lg:col-span-7 flex flex-col gap-4">
+            
+            <!-- Story & Guide Box -->
+            <div class="bg-white rounded-3xl p-6 shadow-xl border-t-8 border-amber-400 relative overflow-hidden">
+                <div class="absolute top-0 left-0 p-8 opacity-10 text-9xl pointer-events-none">☀️</div>
+                <div class="relative z-10">
+                    <span id="level-badge" class="bg-amber-100 text-amber-800 text-xs font-extrabold px-3 py-1 rounded-full uppercase">שלב 1: מחלקות ובנאים</span>
+                    <h2 id="level-title" class="text-2xl font-black text-slate-800 mt-2 mb-3">ברוכים הבאים לחוף ה-OOP שלכם!</h2>
+                    <p id="level-description" class="text-slate-600 text-sm leading-relaxed mb-4">
+                        הקיוסק של החוף ריק! עלינו לתכנת את מחלקת הבסיס <code class="bg-slate-100 px-1.5 py-0.5 rounded font-mono text-rose-600">BeachItem</code> שממנה נירש את כל המוצרים בחוף. 
+                        השלימו את הקוד בצד שמאל כדי ליצור את התבנית הנכונה ולייצר את פריטי החוף הראשונים שלכם!
+                    </p>
+                    <div id="tip-box" class="bg-blue-50 border-r-4 border-blue-500 p-3 rounded-l-xl text-xs text-blue-800 flex items-start gap-2">
+                        <span class="text-base">💡</span>
+                        <div>
+                            <strong class="font-bold">טיפ מורה לחיים:</strong>
+                            <span id="tip-text">הקפידו להשתמש במילה המפתח <code class="font-mono bg-blue-100 px-1 rounded">this</code> כדי להבדיל בין הפרמטר של הבנאי לתכונת המחלקה!</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Code Editor & Interactive Playground -->
+            <div class="bg-slate-900 rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-slate-800">
+                <!-- Editor Header -->
+                <div class="bg-slate-800 px-5 py-3 flex items-center justify-between border-b border-slate-700">
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-rose-500 inline-block"></span>
+                        <span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span>
+                        <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>
+                        <span id="file-name" class="text-xs text-slate-400 font-mono mr-2">BeachItem.cs</span>
+                    </div>
+                    <span class="text-xs text-amber-400 font-mono font-bold" id="lang-indicator">C# Syntax Active</span>
+                </div>
+
+                <!-- Code Workspace -->
+                <div class="p-6 font-mono text-sm text-slate-300 leading-relaxed overflow-x-auto min-h-[320px] bg-slate-950">
+                    <pre id="code-block" class="whitespace-pre-wrap"></pre>
+                </div>
+
+                <!-- Action Button / Submit -->
+                <div class="bg-slate-900 p-4 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4">
+                    <p class="text-xs text-slate-400" id="editor-status-text">השלימו את החלק החסר בקוד למעלה על ידי בחירה מהאפשרויות למטה:</p>
+                    <button id="btn-compile" onclick="compileCode()" class="w-full md:w-auto bg-gradient-to-l from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-black px-6 py-3 rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                        <span>🚀</span>
+                        <span>הרץ קוד ופתח מוצר!</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Interactive Choices Area (The Puzzle Input) -->
+            <div class="bg-white rounded-3xl p-5 shadow-lg border border-slate-100">
+                <h3 class="text-sm font-extrabold text-slate-700 mb-3 flex items-center gap-2">
+                    <span>⚡</span> בחרו את הקוד הנכון להשלמת המשימה:
+                </h3>
+                <div id="options-container" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <!-- Loaded dynamically by level JS -->
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Right Column: Live Beach Simulator / Leaderboard Tabbed Panel (5 Columns) -->
+        <section class="lg:col-span-5 flex flex-col gap-4">
+            
+            <!-- Tab Controls -->
+            <div class="bg-white/80 p-1.5 rounded-2xl shadow-md flex gap-2 border border-slate-200">
+                <button id="tab-beach" onclick="switchRightTab('beach')" class="flex-1 py-2.5 rounded-xl font-black text-xs transition-all bg-amber-500 text-white shadow">
+                    🏖️ סימולטור החוף
+                </button>
+                <button id="tab-leaderboard" onclick="switchRightTab('leaderboard')" class="flex-1 py-2.5 rounded-xl font-black text-xs transition-all text-slate-600 hover:bg-slate-100 flex items-center justify-center gap-1.5">
+                    🏆 טבלת המגמה <span class="bg-rose-500 text-white px-1.5 py-0.2 rounded-full text-[9px] animate-pulse">LIVE</span>
+                </button>
+            </div>
+
+            <!-- Content Area: Beach Simulator -->
+            <div id="right-panel-beach" class="bg-sky-200 rounded-3xl shadow-xl overflow-hidden border-4 border-white flex flex-col h-[520px]">
+                
+                <!-- Sea Section -->
+                <div class="water-wave h-1/3 relative p-4 flex flex-col justify-between">
+                    <div class="flex justify-between items-center z-10">
+                        <span class="text-sm text-white/80 font-black tracking-widest uppercase">ים ה-OOP הכחול</span>
+                        <span class="text-xs bg-white/30 backdrop-blur text-white px-2.5 py-1 rounded-full font-bold" id="wave-speed">רגוע</span>
+                    </div>
+                    <!-- Sea Entities -->
+                    <div id="sea-entities" class="flex gap-4 overflow-x-auto py-2 z-10 justify-center">
+                        <span class="text-3xl animate-bounce" style="animation-delay: 0.2s">🏊</span>
+                        <span class="text-3xl animate-bounce" style="animation-delay: 0.8s">🏄</span>
+                        <span class="text-3xl animate-bounce" style="animation-delay: 1.4s">🛶</span>
+                    </div>
+                </div>
+
+                <!-- Sand Section -->
+                <div class="beach-sand flex-grow p-5 relative flex flex-col justify-between">
+                    <!-- Beach Items Grid -->
+                    <div>
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-xs text-amber-900 font-extrabold bg-amber-200/60 px-3 py-1 rounded-full">פריטים פעילים בחוף</span>
+                            <span class="text-xs text-amber-800 font-bold" id="active-count">0/4 מוצרים</span>
+                        </div>
+                        
+                        <!-- Visual Items Container -->
+                        <div id="beach-grid" class="grid grid-cols-4 gap-4 justify-items-center">
+                            <!-- Empty Slots visually -->
+                            <div class="w-14 h-14 rounded-2xl border-2 border-dashed border-amber-400 flex items-center justify-center text-slate-400 bg-amber-100/50 hover:bg-amber-100 transition-all cursor-pointer group relative" onclick="showSlotInfo()">
+                                <span class="group-hover:scale-110 transition-transform">➕</span>
+                            </div>
+                            <div class="w-14 h-14 rounded-2xl border-2 border-dashed border-amber-400 flex items-center justify-center text-slate-400 bg-amber-100/50">🔒</div>
+                            <div class="w-14 h-14 rounded-2xl border-2 border-dashed border-amber-400 flex items-center justify-center text-slate-400 bg-amber-100/50">🔒</div>
+                            <div class="w-14 h-14 rounded-2xl border-2 border-dashed border-amber-400 flex items-center justify-center text-slate-400 bg-amber-100/50">🔒</div>
+                        </div>
+                    </div>
+
+                    <!-- Customer Feedback & Dialog Box -->
+                    <div class="bg-white/90 backdrop-blur rounded-2xl p-3 border border-amber-200 shadow-sm flex items-center gap-3 relative">
+                        <div id="visitor-bubble-avatar" class="text-3xl">👦</div>
+                        <div class="flex-grow">
+                            <p class="text-xs font-black text-amber-950">נופש מרוצה</p>
+                            <p id="visitor-bubble-text" class="text-xs text-slate-600 mt-0.5">"החוף נראה ריק... הלוואי שהיה פה משהו טעים לאכול!"</p>
+                        </div>
+                        <!-- Float animation container for popping values -->
+                        <div id="floating-feedback-container" class="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl"></div>
+                    </div>
+                </div>
+
+                <!-- Control Console for Simulator -->
+                <div class="bg-amber-500 p-4 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs text-amber-950 font-black">סימולטור ימי החופש הגדול</p>
+                        <p class="text-xs text-white" id="day-counter">יום 1 מתוך 30</p>
+                    </div>
+                    <button id="btn-run-day" onclick="runBeachSimulation()" class="bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs px-5 py-2.5 rounded-xl transition-all shadow-md active:scale-95 flex items-center gap-2">
+                        <span>☀️</span>
+                        <span>התחל יום בחוף!</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Content Area: Leaderboard (🏆) -->
+            <div id="right-panel-leaderboard" class="bg-slate-900 text-slate-100 rounded-3xl shadow-xl overflow-hidden border-4 border-slate-800 h-[520px] flex flex-col hidden">
+                <div class="bg-slate-850 p-4 border-b border-slate-800 flex justify-between items-center">
+                    <div>
+                        <h3 class="font-black text-sm text-amber-400 flex items-center gap-1.5">
+                            <span>🏆</span> טבלת האלופים של המגמה
+                        </h3>
+                        <p class="text-[10px] text-slate-400" id="leaderboard-sync-text">נתונים מסונכרנים לייב ב-Firebase</p>
+                    </div>
+                    <span id="live-users-badge" class="text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-bold">מחובר</span>
+                </div>
+
+                <!-- Leaderboard Rows Container -->
+                <div id="leaderboard-container" class="flex-grow overflow-y-auto p-4 space-y-2.5">
+                    <!-- Loading State -->
+                    <div class="flex flex-col items-center justify-center h-full text-slate-400 gap-2">
+                        <span class="animate-spin text-2xl">🌀</span>
+                        <span class="text-xs font-bold">טוען את נתוני המגמה...</span>
+                    </div>
+                </div>
+
+                <!-- Footer Stats -->
+                <div class="bg-slate-950 p-4 border-t border-slate-800 flex justify-between items-center text-xs">
+                    <span class="text-slate-400">השיא המקומי שלך:</span>
+                    <span class="font-extrabold text-rose-400" id="local-rank-preview">מחשב דירוג...</span>
+                </div>
+            </div>
+
+            <!-- Feedback Modal & Explanation Panel -->
+            <div id="feedback-panel" class="bg-white rounded-3xl p-5 shadow-lg border border-slate-100 hidden">
+                <div class="flex items-start gap-3">
+                    <span id="feedback-icon" class="text-3xl">🎉</span>
+                    <div class="flex-grow">
+                        <h4 id="feedback-title" class="text-base font-black text-slate-800">כל הכבוד! קומפילציה עברה בהצלחה!</h4>
+                        <p id="feedback-explanation" class="text-xs text-slate-600 mt-1 leading-relaxed">
+                            הבנאי נוצר בצורה מעולה. תכונות הפריט אותחלו כראוי וקוד ה-this עשה את עבודתו. כעת נוצר לכם הפריט הראשון בחוף!
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Welcome, Registration & Login Dynamic Modal -->
+    <div id="nickname-modal" class="fixed inset-0 bg-slate-900/85 backdrop-blur-md flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border-4 border-amber-400">
+            <!-- Modal Tab Navigation -->
+            <div class="flex border-b border-slate-100 pb-3 mb-4 gap-2">
+                <button id="auth-tab-login" onclick="toggleAuthTab('login')" class="flex-1 py-2 rounded-xl text-xs font-black transition-all bg-amber-500 text-white shadow">התחברות</button>
+                <button id="auth-tab-register" onclick="toggleAuthTab('register')" class="flex-1 py-2 rounded-xl text-xs font-black transition-all text-slate-600 hover:bg-slate-50">הרשמה</button>
+                <button id="auth-tab-guest" onclick="toggleAuthTab('guest')" class="flex-1 py-2 rounded-xl text-xs font-black transition-all text-slate-600 hover:bg-slate-50">כניסה כאורח</button>
+            </div>
+
+            <div class="text-center">
+                <span id="auth-main-emoji" class="text-5xl mb-2 block">🏄‍♂️</span>
+                <h3 id="auth-main-title" class="text-xl font-black text-slate-800 mb-1">התחברו לחוף ה-OOP</h3>
+                <p id="auth-main-subtitle" class="text-slate-500 text-xs font-bold mb-4">התקדמו בשלבים ושמרו את שיאיכם בענן!</p>
+                
+                <!-- Dynamic Error Notification with Bypass Option -->
+                <div id="auth-error-container" class="bg-rose-50 border-r-4 border-rose-500 p-3 rounded-l-xl text-right text-rose-800 text-xs mb-3 font-bold hidden">
+                    <p id="auth-error-text">שגיאה כלשהי</p>
+                    <!-- Graceful Degradation Bypass Action (Ensures 100% playable sandbox) -->
+                    <button onclick="activateLocalBypassMode()" class="mt-2 w-full bg-slate-800 text-white hover:bg-slate-700 py-1.5 px-3 rounded-lg text-[10px] font-black tracking-tight transition-all flex items-center justify-center gap-1">
+                        <span>💻</span> המשך במצב מקומי (ללא סנכרון ענן)
+                    </button>
+                </div>
+
+                <!-- LOGIN FORM -->
+                <div id="form-login" class="space-y-3 text-right">
+                    <div>
+                        <label class="block text-xs font-black text-slate-600 mb-1">דואר אלקטרוני:</label>
+                        <input type="email" id="login-email" placeholder="student@school.com" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-amber-500 text-left font-bold font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-black text-slate-600 mb-1">סיסמה:</label>
+                        <input type="password" id="login-password" placeholder="••••••••" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-amber-500 text-left font-mono">
+                    </div>
+                    <button onclick="handleLogin()" id="btn-submit-login" class="w-full mt-2 bg-amber-500 hover:bg-amber-600 text-white font-black py-3 rounded-2xl shadow transition-all text-xs flex items-center justify-center gap-1.5">
+                        <span>🔑</span>
+                        <span>התחבר והמשך לשחק</span>
+                    </button>
+                </div>
+
+                <!-- REGISTER FORM -->
+                <div id="form-register" class="space-y-3 text-right hidden">
+                    <div>
+                        <label class="block text-xs font-black text-slate-600 mb-1">שם מלא / כינוי לכיתה:</label>
+                        <input type="text" id="register-name" placeholder="לדוגמה: דניאל לוי יא1" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-amber-500 text-right font-bold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-black text-slate-600 mb-1">דואר אלקטרוני:</label>
+                        <input type="email" id="register-email" placeholder="student@school.com" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-amber-500 text-left font-bold font-mono">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-black text-slate-600 mb-1">סיסמה (לפחות 6 תווים):</label>
+                        <input type="password" id="register-password" placeholder="••••••••" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-amber-500 text-left font-mono">
+                    </div>
+                    <button onclick="handleRegister()" id="btn-submit-register" class="w-full mt-2 bg-emerald-500 hover:bg-emerald-600 text-white font-black py-3 rounded-2xl shadow transition-all text-xs flex items-center justify-center gap-1.5">
+                        <span>📝</span>
+                        <span>צור חשבון והתחל להתחרות</span>
+                    </button>
+                </div>
+
+                <!-- GUEST FORM -->
+                <div id="form-guest" class="space-y-3 text-right hidden">
+                    <p class="text-xs text-slate-500 mb-3 text-center">משחק כאורח אינו דורש סיסמה, אך ההתקדמות שלך עשויה שלא להישמר במכשירים אחרים.</p>
+                    <div>
+                        <label class="block text-xs font-black text-slate-600 mb-1">כינוי זמני:</label>
+                        <input type="text" id="guest-name" placeholder="אורח בחוף" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-amber-500 text-right font-bold">
+                    </div>
+                    <button onclick="handleGuestLogin()" id="btn-submit-guest" class="w-full mt-2 bg-sky-500 hover:bg-sky-600 text-white font-black py-3 rounded-2xl shadow transition-all text-xs flex items-center justify-center gap-1.5">
+                        <span>🚀</span>
+                        <span>היכנס כאורח זמני</span>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Modal for Alerts / Big Messages -->
+    <div id="custom-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border-4 border-amber-400 animate-in fade-in zoom-in-95 duration-200">
+            <div class="text-center">
+                <span id="modal-emoji" class="text-6xl mb-3 block">👑</span>
+                <h3 id="modal-title" class="text-2xl font-black text-slate-800 mb-2">אליפות החוף!</h3>
+                <p id="modal-body" class="text-slate-600 text-sm leading-relaxed mb-6">כל הכבוד, השלמתם את משימת הבסיס!</p>
+                <button onclick="closeModal()" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-black py-3 rounded-2xl shadow-lg transition-all">המשך לאתגר הבא 🏖️</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK Imports & Operations -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global flag for fallback state
+        window.isOfflineMode = false;
+
+        // Configuration setup
+        const firebaseConfig = typeof __firebase_config !== 'undefined' 
+            ? JSON.parse(__firebase_config) 
+            : {
+                apiKey: "AIzaSyC9v0x9kA-_HX0vi8XWRDEOFhjeWLlJU_w",
+                authDomain: "kingofthebeach-cb469.firebaseapp.com",
+                projectId: "kingofthebeach-cb469",
+                storageBucket: "kingofthebeach-cb469.firebasestorage.app",
+                messagingSenderId: "77858854873",
+                appId: "1:77858854873:web:04777c590c8ca75a29abc8"
+            };
+
+        // Attempt initialization gracefully
+        let app, auth, db;
+        let firebaseInitialized = false;
+
+        try {
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+            firebaseInitialized = true;
+            document.getElementById('connection-status-badge').className = "text-[10px] bg-emerald-100 text-emerald-700 border border-emerald-300 px-2 py-1 rounded-full font-black";
+            document.getElementById('connection-status-badge').innerText = "🟢 מחובר לענן";
+        } catch (initErr) {
+            console.warn("Could not connect to Firebase Cloud. Graceful fallback activated.", initErr);
+            triggerOfflineFallback();
+        }
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'kingofthebeach-cb469';
+        let firebaseUser = null;
+
+        if (firebaseInitialized) {
+            // Listen for authentication changes (Rule 3 priority)
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    firebaseUser = user;
+                    window.firebaseUser = user;
+                    
+                    // Show Logout button if user is logged in
+                    document.getElementById('btn-logout').classList.remove('hidden');
+
+                    // Determine display name
+                    let name = user.displayName || user.email || "שחקן אנונימי";
+                    if (user.isAnonymous && !user.displayName) {
+                        name = window.playerName || localStorage.getItem('oop_beach_guest_name') || "אורח בחוף";
+                    }
+                    
+                    window.playerName = name;
+                    document.getElementById('player-display-name').innerText = name;
+                    document.getElementById('nickname-modal').classList.add('hidden');
+
+                    // Fetch and Load Saved User Progress (Private data path - Rule 1)
+                    await loadSavedProgress(user.uid);
+
+                    // Set up live high scores leaderboard connection (Rule 1)
+                    setupLeaderboardListener();
+                } else {
+                    if (!window.isOfflineMode) {
+                        firebaseUser = null;
+                        window.firebaseUser = null;
+                        document.getElementById('btn-logout').classList.add('hidden');
+                        document.getElementById('player-display-name').innerText = "שחקן אורח";
+                        document.getElementById('nickname-modal').classList.remove('hidden');
+                    }
+                }
+            });
+        }
+
+        // Registration handler
+        window.registerWithEmail = async function(name, email, password) {
+            if (window.isOfflineMode || !firebaseInitialized) return mockRegister(name);
+            try {
+                const cred = await createUserWithEmailAndPassword(auth, email, password);
+                await updateProfile(cred.user, { displayName: name });
+                window.playerName = name;
+                return { success: true };
+            } catch (error) {
+                return { success: false, message: translateAuthError(error.code, error.message) };
+            }
+        };
+
+        // Login handler
+        window.loginWithEmail = async function(email, password) {
+            if (window.isOfflineMode || !firebaseInitialized) return { success: false, message: "ההרשמה מושבתת כרגע במצב מקומי. השתמשו ב'כניסה כאורח'." };
+            try {
+                const cred = await signInWithEmailAndPassword(auth, email, password);
+                window.playerName = cred.user.displayName || cred.user.email;
+                return { success: true };
+            } catch (error) {
+                return { success: false, message: translateAuthError(error.code, error.message) };
+            }
+        };
+
+        // Anonymous/Guest login handler
+        window.loginAsGuest = async function(name) {
+            if (window.isOfflineMode || !firebaseInitialized) {
+                return mockGuestLogin(name);
+            }
+            try {
+                window.playerName = name;
+                localStorage.setItem('oop_beach_guest_name', name);
+                await signInAnonymously(auth);
+                return { success: true };
+            } catch (error) {
+                return { success: false, message: translateAuthError(error.code, error.message) };
+            }
+        };
+
+        // Logout handler
+        window.triggerSignOut = async function() {
+            if (window.isOfflineMode || !firebaseInitialized) {
+                window.isOfflineMode = false;
+                localStorage.removeItem('oop_beach_offline_active');
+                location.reload();
+                return;
+            }
+            try {
+                await signOut(auth);
+                // Reset local state to defaults
+                window.coins = 100;
+                window.reputation = 0;
+                window.currentLevel = 1;
+                window.day = 1;
+                window.activeBeachItems = [];
+                window.updateStats();
+                window.addBeachAttraction(0); // clear
+                window.loadLevel(1);
+            } catch (err) {
+                console.error("Sign out error", err);
+            }
+        };
+
+        // Fetch user progress from private user path (Rule 1)
+        async function loadSavedProgress(userId) {
+            const progressDocRef = doc(db, 'artifacts', appId, 'users', userId, 'progress', 'state');
+            try {
+                const snapshot = await getDoc(progressDocRef);
+                if (snapshot.exists()) {
+                    const data = snapshot.data();
+                    window.coins = data.coins || 100;
+                    window.reputation = data.reputation || 0;
+                    window.currentLevel = data.currentLevel || 1;
+                    window.day = data.day || 1;
+                    
+                    // Restore attractions list
+                    window.activeBeachItems = data.activeBeachItems || [];
+                    
+                    // UI refresh updates
+                    window.updateStats();
+                    window.restoreBeachAttractionsUI();
+                    window.loadLevel(window.currentLevel);
+                    document.getElementById('day-counter').innerText = `יום ${window.day} מתוך 30`;
+                } else {
+                    // First time login - save initial blank state
+                    await window.savePlayerProgress();
+                }
+            } catch (err) {
+                console.error("Error loading user state from Firestore", err);
+            }
+        }
+
+        // Pushes all progress data to Firebase (Rule 1, Private & Public)
+        window.savePlayerProgress = async function() {
+            if (window.isOfflineMode) {
+                saveOfflineProgressLocally();
+                return;
+            }
+            if (!firebaseUser) return;
+            const nickname = window.playerName || "שחקן אנונימי";
+
+            // Save private progress: /artifacts/{appId}/users/{userId}/progress/state
+            const privateDocRef = doc(db, 'artifacts', appId, 'users', firebaseUser.uid, 'progress', 'state');
+            
+            // Save public leaderboard info: /artifacts/{appId}/public/data/leaderboard/{userId}
+            const publicDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'leaderboard', firebaseUser.uid);
+
+            try {
+                const stateData = {
+                    coins: window.coins || 100,
+                    reputation: window.reputation || 0,
+                    currentLevel: window.currentLevel || 1,
+                    day: window.day || 1,
+                    activeBeachItems: window.activeBeachItems || []
+                };
+
+                const publicData = {
+                    uid: firebaseUser.uid,
+                    name: nickname,
+                    coins: window.coins || 100,
+                    reputation: window.reputation || 0,
+                    level: window.currentLevel || 1,
+                    itemsCount: (window.activeBeachItems || []).length,
+                    timestamp: Date.now()
+                };
+
+                await setDoc(privateDocRef, stateData, { merge: true });
+                await setDoc(publicDocRef, publicData, { merge: true });
+            } catch (error) {
+                console.error("Error saving progress to Firebase:", error);
+            }
+        };
+
+        // Real-time Leaderboard connection (Rule 1 & Rule 2)
+        function setupLeaderboardListener() {
+            if (window.isOfflineMode) return;
+            const collectionRef = collection(db, 'artifacts', appId, 'public', 'data', 'leaderboard');
+            
+            onSnapshot(collectionRef, (snapshot) => {
+                const results = [];
+                snapshot.forEach(doc => {
+                    results.push(doc.data());
+                });
+
+                // Rule 2 sorting in Javascript memory instead of complex query index
+                results.sort((a, b) => {
+                    if (b.reputation !== a.reputation) {
+                        return b.reputation - a.reputation;
+                    }
+                    return b.coins - a.coins;
+                });
+
+                window.renderLeaderboardUI(results);
+            }, (err) => {
+                console.error("Leaderboard Real-time Sync Error:", err);
+            });
+        }
+
+        // Friendly error messages in Hebrew
+        function translateAuthError(code, rawMessage) {
+            console.error("Firebase Auth Error Details:", code, rawMessage);
+            switch (code) {
+                case 'auth/operation-not-allowed':
+                    return 'יש להפעיל את שיטת האימות (דואר אלקטרוני/אנונימי) בלוח הבקרה של Firebase Console (Sign-in method).';
+                case 'auth/invalid-email':
+                    return 'כתובת האימייל שהוזנה אינה תקינה.';
+                case 'auth/user-disabled':
+                    return 'חשבון משתמש זה נחסם על ידי מנהל המערכת.';
+                case 'auth/user-not-found':
+                    return 'לא נמצא משתמש רשום עם כתובת האימייל הזו.';
+                case 'auth/wrong-password':
+                case 'auth/invalid-credential':
+                    return 'פרטי ההתחברות שגויים. נא לוודא אימייל וסיסמה.';
+                case 'auth/email-already-in-use':
+                    return 'כתובת האימייל הזו כבר תפוסה במערכת.';
+                case 'auth/weak-password':
+                    return 'הסיסמה חלשה מדי. עליה להכיל לפחות 6 תווים.';
+                default:
+                    return `שגיאת אימות: ${rawMessage || code}`;
+            }
+        }
+
+        // --- OFFLINE BACKUP SIMULATOR MODULE ---
+        // Activates fallback locally when user triggers it or on total error
+        window.activateLocalBypassMode = function() {
+            triggerOfflineFallback();
+            const mockName = document.getElementById('guest-name').value.trim() || "אורח מקומי";
+            mockGuestLogin(mockName);
+        };
+
+        function triggerOfflineFallback() {
+            window.isOfflineMode = true;
+            localStorage.setItem('oop_beach_offline_active', 'true');
+            
+            // Adjust Status Badge
+            const badge = document.getElementById('connection-status-badge');
+            badge.className = "text-[10px] bg-amber-100 text-amber-800 border border-amber-300 px-2 py-1 rounded-full font-black";
+            badge.innerText = "💻 מצב מקומי פעיל";
+
+            document.getElementById('leaderboard-sync-text').innerText = "טבלה מדומה (ללא חיבור לענן)";
+            document.getElementById('live-users-badge').className = "text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full font-bold";
+            document.getElementById('live-users-badge').innerText = "אופליין";
+        }
+
+        function mockGuestLogin(name) {
+            window.playerName = name;
+            document.getElementById('player-display-name').innerText = name + " (מקומי)";
+            document.getElementById('btn-logout').classList.remove('hidden');
+            document.getElementById('nickname-modal').classList.add('hidden');
+            playSound('success');
+
+            // Load offline storage progress
+            const saved = localStorage.getItem('oop_beach_offline_state');
+            if (saved) {
+                const data = JSON.parse(saved);
+                window.coins = data.coins || 100;
+                window.reputation = data.reputation || 0;
+                window.currentLevel = data.currentLevel || 1;
+                window.day = data.day || 1;
+                window.activeBeachItems = data.activeBeachItems || [];
+                
+                window.updateStats();
+                window.restoreBeachAttractionsUI();
+                window.loadLevel(window.currentLevel);
+                document.getElementById('day-counter').innerText = `יום ${window.day} מתוך 30`;
+            } else {
+                saveOfflineProgressLocally();
+            }
+
+            // Generate Mock Classroom Competitors
+            generateMockLeaderboard();
+            return { success: true };
+        }
+
+        function mockRegister(name) {
+            return mockGuestLogin(name);
+        }
+
+        function saveOfflineProgressLocally() {
+            const state = {
+                coins: window.coins || 100,
+                reputation: window.reputation || 0,
+                currentLevel: window.currentLevel || 1,
+                day: window.day || 1,
+                activeBeachItems: window.activeBeachItems || []
+            };
+            localStorage.setItem('oop_beach_offline_state', JSON.stringify(state));
+            generateMockLeaderboard();
+        }
+
+        function generateMockLeaderboard() {
+            const list = [
+                { uid: "mock1", name: "רועי מזרחי (יא-2)", level: 4, itemsCount: 4, reputation: 65, coins: 340 },
+                { uid: "mock2", name: "נועה קדוש (יא-3)", level: 3, itemsCount: 3, reputation: 45, coins: 210 },
+                { uid: "mock3", name: "עידו כהן (יא-1)", level: 2, itemsCount: 2, reputation: 25, coins: 150 },
+                { 
+                    uid: "local-user", 
+                    name: window.playerName || "אורח מקומי", 
+                    level: window.currentLevel || 1, 
+                    itemsCount: (window.activeBeachItems || []).length, 
+                    reputation: window.reputation || 0, 
+                    coins: window.coins || 100 
+                }
+            ];
+
+            // Sort mock players locally
+            list.sort((a, b) => b.reputation - a.reputation);
+            window.renderLeaderboardUI(list);
+        }
+
+        // Automatic boot checking if user was previously in bypass mode
+        if (localStorage.getItem('oop_beach_offline_active') === 'true') {
+            triggerOfflineFallback();
+        }
+    </script>
+
+    <!-- Retro Audio Synth for sound effects (Web Audio API) -->
+    <script>
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playSound(type) {
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'success') {
+                    // Quick sweet arpeggio
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+                    osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
+                    osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2); // G5
+                    gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.4);
+                } else if (type === 'error') {
+                    // Buzz down
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.3);
+                    gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.3);
+                } else if (type === 'coin') {
+                    // Ping
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(987.77, audioCtx.currentTime); // B5
+                    osc.frequency.setValueAtTime(1318.51, audioCtx.currentTime + 0.08); // E6
+                    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.25);
+                }
+            } catch (e) {
+                // Ignore audio block/unblock errors
+            }
+        }
+    </script>
+
+    <!-- Game Logic & Levels State Machine -->
+    <script>
+        let currentLanguage = 'CS'; // Default is C#
+        let coins = 100;
+        let reputation = 0;
+        let currentLevel = 1;
+        let selectedOptionIndex = null;
+        let day = 1;
+        let playerName = "";
+        
+        // Active items placed on the beach (polymorphic list)
+        let activeBeachItems = [];
+
+        // Save progress trigger helper
+        function syncProgress() {
+            if (window.savePlayerProgress) {
+                window.savePlayerProgress();
+            }
+        }
+
+        // Auth form dynamic tabs controller
+        function toggleAuthTab(tab) {
+            const tabLogin = document.getElementById('auth-tab-login');
+            const tabRegister = document.getElementById('auth-tab-register');
+            const tabGuest = document.getElementById('auth-tab-guest');
+
+            const formLogin = document.getElementById('form-login');
+            const formRegister = document.getElementById('form-register');
+            const formGuest = document.getElementById('form-guest');
+
+            const errorContainer = document.getElementById('auth-error-container');
+            errorContainer.classList.add('hidden');
+
+            // Default class list helper
+            const activeClasses = 'flex-1 py-2 rounded-xl text-xs font-black transition-all bg-amber-500 text-white shadow';
+            const inactiveClasses = 'flex-1 py-2 rounded-xl text-xs font-black transition-all text-slate-600 hover:bg-slate-50';
+
+            tabLogin.className = (tab === 'login') ? activeClasses : inactiveClasses;
+            tabRegister.className = (tab === 'register') ? activeClasses : inactiveClasses;
+            tabGuest.className = (tab === 'guest') ? activeClasses : inactiveClasses;
+
+            formLogin.classList.toggle('hidden', tab !== 'login');
+            formRegister.classList.toggle('hidden', tab !== 'register');
+            formGuest.classList.toggle('hidden', tab !== 'guest');
+
+            // Emojis
+            if (tab === 'login') {
+                document.getElementById('auth-main-emoji').innerText = "🔑";
+                document.getElementById('auth-main-title').innerText = "התחברו לחוף ה-OOP";
+            } else if (tab === 'register') {
+                document.getElementById('auth-main-emoji').innerText = "📝";
+                document.getElementById('auth-main-title').innerText = "הרשמה למגמה";
+            } else {
+                document.getElementById('auth-main-emoji').innerText = "🏄‍♂️";
+                document.getElementById('auth-main-title').innerText = "כניסה מהירה";
+            }
+        }
+
+        // Show Auth Error
+        function showAuthError(msg) {
+            const container = document.getElementById('auth-error-container');
+            document.getElementById('auth-error-text').innerText = msg;
+            container.classList.remove('hidden');
+        }
+
+        // Login Submit action
+        async function handleLogin() {
+            const email = document.getElementById('login-email').value.trim();
+            const pass = document.getElementById('login-password').value.trim();
+
+            if (!email || !pass) {
+                showAuthError("נא למלא את כל השדות.");
+                return;
+            }
+
+            const btn = document.getElementById('btn-submit-login');
+            btn.disabled = true;
+            btn.innerHTML = `<span>🌀</span> <span>מתחבר...</span>`;
+
+            const res = await window.loginWithEmail(email, pass);
+            
+            btn.disabled = false;
+            btn.innerHTML = `<span>🔑</span> <span>התחבר והמשך לשחק</span>`;
+
+            if (!res.success) {
+                showAuthError(res.message);
+                playSound('error');
+            } else {
+                playSound('success');
+            }
+        }
+
+        // Registration Submit action
+        async function handleRegister() {
+            const name = document.getElementById('register-name').value.trim();
+            const email = document.getElementById('register-email').value.trim();
+            const pass = document.getElementById('register-password').value.trim();
+
+            if (!name || !email || !pass) {
+                showAuthError("נא למלא את כל השדות.");
+                return;
+            }
+            if (name.length < 2) {
+                showAuthError("הכינוי חייב להכיל לפחות 2 תווים.");
+                return;
+            }
+
+            const btn = document.getElementById('btn-submit-register');
+            btn.disabled = true;
+            btn.innerHTML = `<span>🌀</span> <span>רושם משתמש...</span>`;
+
+            const res = await window.registerWithEmail(name, email, pass);
+
+            btn.disabled = false;
+            btn.innerHTML = `<span>📝</span> <span>צור חשבון והתחל להתחרות</span>`;
+
+            if (!res.success) {
+                showAuthError(res.message);
+                playSound('error');
+            } else {
+                playSound('success');
+            }
+        }
+
+        // Guest sign-in action
+        async function handleGuestLogin() {
+            const name = document.getElementById('guest-name').value.trim();
+            if (name.length < 2) {
+                showAuthError("הכינוי זמני חייב להכיל לפחות 2 תווים.");
+                return;
+            }
+
+            const btn = document.getElementById('btn-submit-guest');
+            btn.disabled = true;
+            btn.innerHTML = `<span>🌀</span> <span>נכנס...</span>`;
+
+            const res = await window.loginAsGuest(name);
+
+            btn.disabled = false;
+            btn.innerHTML = `<span>🚀</span> <span>היכנס כאורח זמני</span>`;
+
+            if (!res.success) {
+                showAuthError(res.message);
+                playSound('error');
+            } else {
+                playSound('success');
+            }
+        }
+
+        // Switch between right panel tabs
+        function switchRightTab(tabName) {
+            const beachBtn = document.getElementById('tab-beach');
+            const lbBtn = document.getElementById('tab-leaderboard');
+            const beachPanel = document.getElementById('right-panel-beach');
+            const lbPanel = document.getElementById('right-panel-leaderboard');
+
+            if (tabName === 'beach') {
+                beachBtn.className = "flex-1 py-2.5 rounded-xl font-black text-xs transition-all bg-amber-500 text-white shadow";
+                lbBtn.className = "flex-1 py-2.5 rounded-xl font-black text-xs transition-all text-slate-600 hover:bg-slate-100 flex items-center justify-center gap-1.5";
+                beachPanel.classList.remove('hidden');
+                lbPanel.classList.add('hidden');
+            } else {
+                lbBtn.className = "flex-1 py-2.5 rounded-xl font-black text-xs transition-all bg-amber-500 text-white shadow flex items-center justify-center gap-1.5";
+                beachBtn.className = "flex-1 py-2.5 rounded-xl font-black text-xs transition-all text-slate-600 hover:bg-slate-100";
+                lbPanel.classList.remove('hidden');
+                beachPanel.classList.add('hidden');
+            }
+        }
+
+        // Render dynamic leaderboard items securely
+        window.renderLeaderboardUI = function(playersList) {
+            const container = document.getElementById('leaderboard-container');
+            container.innerHTML = '';
+
+            if (playersList.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-10 text-slate-400 text-xs">
+                        🏝️ אין עדיין מתחרים בחוף. היו הראשונים להגיש קוד!
+                    </div>
+                `;
+                document.getElementById('local-rank-preview').innerText = "לא מדורג";
+                return;
+            }
+
+            let localRank = "לא מדורג";
+
+            playersList.forEach((player, idx) => {
+                const rank = idx + 1;
+                let badge = `${rank}`;
+                let rankClass = "bg-slate-800 text-slate-300";
+
+                if (rank === 1) { badge = "🥇"; rankClass = "bg-amber-500/20 text-amber-300 border border-amber-500/30"; }
+                else if (rank === 2) { badge = "🥈"; rankClass = "bg-slate-300/20 text-slate-200 border border-slate-300/30"; }
+                else if (rank === 3) { badge = "🥉"; rankClass = "bg-rose-500/25 text-rose-300 border border-rose-500/30"; }
+
+                const isCurrent = (window.firebaseUser && player.uid === window.firebaseUser.uid) || (window.isOfflineMode && player.uid === "local-user");
+                if (isCurrent) {
+                    localRank = `#${rank} מתוך ${playersList.length}`;
+                }
+
+                const row = document.createElement('div');
+                row.className = `flex items-center justify-between p-3 rounded-2xl transition-all ${isCurrent ? 'bg-amber-500/10 border-2 border-amber-500' : 'bg-slate-800/50 border border-slate-800'}`;
+                
+                row.innerHTML = `
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-7 h-7 rounded-full flex items-center justify-center font-black text-xs ${rankClass}">${badge}</span>
+                        <div>
+                            <p class="text-xs font-black ${isCurrent ? 'text-amber-400' : 'text-slate-100'}">${player.name || "שחקן אנונימי"}</p>
+                            <p class="text-[9px] text-slate-400">שלב ${player.level || 1} • ${player.itemsCount || 0} מוצרים</p>
+                        </div>
+                    </div>
+                    <div class="text-left">
+                        <p class="text-xs font-black text-rose-400">🔥 ${player.reputation || 0}</p>
+                        <p class="text-[9px] text-amber-500">🥥 ${player.coins || 100}</p>
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+
+            document.getElementById('local-rank-preview').innerText = localRank;
+        };
+
+        // Restore UI attractions after loaded from Firestore / localStorage
+        window.restoreBeachAttractionsUI = function() {
+            const grid = document.getElementById('beach-grid');
+            grid.innerHTML = '';
+
+            activeBeachItems.forEach((item) => {
+                grid.innerHTML += `
+                    <div class="w-14 h-14 rounded-2xl bg-white shadow-md flex flex-col items-center justify-center relative cursor-help group transition-transform hover:scale-110">
+                        <span class="text-2xl">${item.emoji}</span>
+                        <span class="absolute -top-1 -right-1 bg-emerald-500 text-white text-[9px] px-1 rounded-full font-black">OOP</span>
+                        <div class="absolute bottom-full mb-2 bg-slate-900 text-white text-[10px] p-2 rounded-xl hidden group-hover:block w-32 text-center shadow-lg z-50">
+                            <strong>${item.name}</strong><br>
+                            נוצר משלב ${item.level}
+                        </div>
+                    </div>
+                `;
+            });
+
+            // Fill empty slots
+            for (let i = activeBeachItems.length; i < 4; i++) {
+                if (i === activeBeachItems.length) {
+                    grid.innerHTML += `
+                        <div class="w-14 h-14 rounded-2xl border-2 border-dashed border-amber-400 flex items-center justify-center text-slate-400 bg-amber-100/50 hover:bg-amber-100 transition-all cursor-pointer group relative" onclick="showSlotInfo()">
+                            <span class="group-hover:scale-110 transition-transform">➕</span>
+                        </div>
+                    `;
+                } else {
+                    grid.innerHTML += `
+                        <div class="w-14 h-14 rounded-2xl border-2 border-dashed border-amber-400 flex items-center justify-center text-slate-400 bg-amber-100/50">🔒</div>
+                    `;
+                }
+            }
+
+            document.getElementById('active-count').innerText = `${activeBeachItems.length}/4 מוצרים`;
+        };
+
+        // Level Definitions
+        const levels = {
+            1: {
+                title: "הגדרת מחלקת הבסיס",
+                badge: "שלב 1: מחלקות ובנאים",
+                description: "הקיוסק של החוף ריק! עלינו לתכנת את מחלקת הבסיס BeachItem שממנה נירש את כל המוצרים בחוף. השלימו את הקוד בצד שמאל כדי ליצור את התבנית הנכונה ולייצר את פריטי החוף הראשונים שלכם!",
+                fileName: { CS: "BeachItem.cs", Java: "BeachItem.java" },
+                tip: "הקפידו להשתמש במילת המפתח this כדי להבדיל בין הפרמטר של הבנאי לתכונת המחלקה!",
+                options: {
+                    CS: [
+                        {
+                            code: 'this.name = name;\nthis.price = price;',
+                            explanation: "נכון מאוד! שימוש במילה this פונה אל השדות הפנימיים של האובייקט הנוכחי ומאתחל אותם מתוך הפרמטרים שקיבל הבנאי.",
+                            isCorrect: true
+                        },
+                        {
+                            code: 'name = this.name;\nprice = this.price;',
+                            explanation: "טעות נפוצה! כך אנחנו דורסים את הפרמטרים במקום לשמור את הערכים בתוך תכונות העצם עצמו.",
+                            isCorrect: false
+                        },
+                        {
+                            code: 'string name = name;\ndouble price = price;',
+                            explanation: "שגיאת קומפילציה! אתם מגדירים כאן משתנים מקומיים חדשים בבנאי במקום לאתחל את תכונות המחלקה שכבר קיימות.",
+                            isCorrect: false
+                        }
+                    ],
+                    Java: [
+                        {
+                            code: 'this.name = name;\nthis.price = price;',
+                            explanation: "מדויק! ב-Java כמו ב-C# המילה this פונה לשדות האובייקט הנוכחי.",
+                            isCorrect: true
+                        },
+                        {
+                            code: 'name = this.name;\nprice = this.price;',
+                            explanation: "לא נכון. כאן אתם שמים את הערך הריק של שדות האובייקט בתוך הפרמטרים המקומיים.",
+                            isCorrect: false
+                        },
+                        {
+                            code: 'String name = name;\ndouble price = price;',
+                            explanation: "שגיאת קומפילציה ב-Java! אתם יוצרים משתנים מקומיים חדשים בבנאי.",
+                            isCorrect: false
+                        }
+                    ]
+                },
+                getCodeTemplate: function(lang, placeholder) {
+                    if (lang === 'CS') {
+                        return `public class BeachItem\n{\n    protected string name;\n    protected double price;\n\n    public BeachItem(string name, double price)\n    {\n        ${placeholder}\n    }\n\n    public virtual string GetDescription()\n    {\n        return $"מוצר: {name}, מחיר: {price} קוקוסים";\n    }\n}`;
+                    } else {
+                        return `public class BeachItem {\n    protected String name;\n    protected double price;\n\n    public BeachItem(String name, double price) {\n        ${placeholder}\n    }\n\n    public String getDescription() {\n        return "מוצר: " + name + ", מחיר: " + price + " קוקוסים";\n    }\n}`;
+                    }
+                }
+            },
+            2: {
+                title: "בונים היררכיה - ירושה מעשית!",
+                badge: "שלב 2: ירושה (Inheritance)",
+                description: "מצוין! כעת אנחנו רוצים ליצור סוג מיוחד של מוצר - שלגון טעים (IceCream). שלגון הוא סוג של BeachItem (יחס IS-A) ולכן עליו לרשת ממנו. עלינו לקרוא לבנאי של ה'אבא' (מחלקת הבסיס) כדי לאתחל את השם והמחיר!",
+                fileName: { CS: "IceCream.cs", Java: "IceCream.java" },
+                tip: "ב-C# משתמשים במילת המפתח base כדי להפעיל את בנאי האב, וב-Java משתמשים ב-super() בשורה הראשונה של הבנאי!",
+                options: {
+                    CS: [
+                        {
+                            code: 'public IceCream(string name, double price, string flavor) : base(name, price)',
+                            explanation: "בול בפוני! ב-C# אנו משתמשים בנקודתיים ובמילה base כדי לקרוא לבנאי האב לפני שהבנאי של הבן מתחיל לרוץ.",
+                            isCorrect: true
+                        },
+                        {
+                            code: 'public IceCream(string name, double price, string flavor) : super(name, price)',
+                            explanation: "כמעט! המילה super שייכת לעולם של Java. ב-C# משתמשים ב-base.",
+                            isCorrect: false
+                        },
+                        {
+                            code: 'public IceCream(string name, double price, string flavor)\n{\n    this.name = name;\n    this.price = price;',
+                            explanation: "אומנם name ו-price מוגדרים כ-protected, אך בבגרות ובקוד נכון תמיד מפעילים קודם את הבנאי של מחלקת הבסיס כדי למנוע כפל קוד!",
+                            isCorrect: false
+                        }
+                    ],
+                    Java: [
+                        {
+                            code: 'public IceCream(String name, double price, String flavor) {\n        super(name, price);',
+                            explanation: "כל הכבוד! ב-Java המילה super חייבת להיות השורה הראשונה בבנאי הבן כדי לקרוא לבנאי של מחלקת העל.",
+                            isCorrect: true
+                        },
+                        {
+                            code: 'public IceCream(String name, double price, String flavor) {\n        base(name, price);',
+                            explanation: "אופס! המילה base שייכת ל-C#. ב-Java המילה הסודית היא super.",
+                            isCorrect: false
+                        },
+                        {
+                            code: 'public IceCream(String name, double price, String flavor) : extends BeachItem {',
+                            explanation: "שגיאת סינטקס חמורה ב-Java! ירושה מגדירים בכותרת המחלקה בעזרת extends, ולא בכותרת הבנאי.",
+                            isCorrect: false
+                        }
+                    ]
+                },
+                getCodeTemplate: function(lang, placeholder) {
+                    if (lang === 'CS') {
+                        return `public class IceCream : BeachItem\n{\n    private string flavor;\n\n    ${placeholder}\n    {\n        this.flavor = flavor;\n    }\n}`;
+                    } else {
+                        return `public class IceCream extends BeachItem {\n    private String flavor;\n\n    ${placeholder}\n        this.flavor = flavor;\n    }\n}`;
+                    }
+                }
+            },
+            3: {
+                title: "פולימורפיזם ודריסת פעולות",
+                badge: "שלב 3: פולימורפיזם (Polymorphism)",
+                description: "מדהים, השלגון שלכם מוכן! עכשיו בואו נלמד איך לדרוס (Override) את פעולת התיאור כך שכאשר נקרא לתיאור של שלגון, המחשב יבין בקישור דינמי (Late Binding) להציג גם את הטעם שלו! איך מגדירים דריסה?",
+                fileName: { CS: "IceCream.cs", Java: "IceCream.java" },
+                tip: "ב-C# חובה להשתמש במילות המפתח virtual באב ו-override בבן. ב-Java מספיק לכתוב את אותה חתימה בדיוק (ומומלץ להוסיף את האנוטציה @Override).",
+                options: {
+                    CS: [
+                        {
+                            code: 'public override string GetDescription()\n    {\n        return base.GetDescription() + $", טעם: {flavor}";\n    }',
+                            explanation: "מעולה! override מאפשרת לדרוס את הפעולה הווירטואלית, ו-base.GetDescription() קורא לפעולת האב ומאפשר שימוש חוזר בקוד!",
+                            isCorrect: true
+                        },
+                        {
+                            code: 'public new string GetDescription()\n    {\n        return GetDescription() + flavor;\n    }',
+                            explanation: "זהירות! שימוש ב-new מסתיר את פעולת האב ולא יפעיל פולימורפיזם. בנוסף, קריאה ל-GetDescription() בתוך עצמה ללא בסיס תגרום לרקורסיה אינסופית וקריסת מערכת!",
+                            isCorrect: false
+                        },
+                        {
+                            code: 'public string GetDescription()\n    {\n        return base.GetDescription();\n    }',
+                            explanation: "שגיאת קומפילציה! ב-C# לא ניתן לדרוס פעולה וירטואלית ללא המילה המפורשת override.",
+                            isCorrect: false
+                        }
+                    ],
+                    Java: [
+                        {
+                            code: '@Override\n    public String getDescription() {\n        return super.getDescription() + ", טעם: " + flavor;\n    }',
+                            explanation: "תשובה מושלמת! האנוטציה @Override מוודאת שדרסתם נכון, ושימוש ב-super.getDescription() מייעל את הקוד.",
+                            isCorrect: true
+                        },
+                        {
+                            code: 'public String getDescription() {\n        return this.getDescription() + flavor;\n    }',
+                            explanation: "סכנת קריסה! שימוש ב-this יקרא לפעולה הנוכחית שוב ושוב עד שייגמר הזיכרון (Stack Overflow)!",
+                            isCorrect: false
+                        },
+                        {
+                            code: 'public String superGetDescription() {\n        return super.getDescription() + flavor;\n    }',
+                            explanation: "כך יצרתם פעולה חדשה לגמרי במקום לדרוס את הקודמת. המחשב לא ידע להפעיל פולימורפיזם בחוף!",
+                            isCorrect: false
+                        }
+                    ]
+                },
+                getCodeTemplate: function(lang, placeholder) {
+                    if (lang === 'CS') {
+                        return `public class IceCream : BeachItem\n{\n    private string flavor;\n    // ... בנאי מוגדר ...\n\n    ${placeholder}\n}`;
+                    } else {
+                        return `public class IceCream extends BeachItem {\n    private String flavor;\n    // ... בנאי מוגדר ...\n\n    ${placeholder}\n}`;
+                    }
+                }
+            },
+            4: {
+                title: "ממשקים להשכרת ציוד חוף",
+                badge: "שלב 4: ממשקים (Interfaces)",
+                description: "המשימה האחרונה! אנחנו רוצים להוסיף גלשנים וכיסאות נוח להשכרה. הם צריכים להתנהג כ'ניתנים להשכרה'. נגדיר ממשק (Interface) בשם IRentable שיחייב כל מחלקה שמממשת אותו להגדיר פעולות השכרה והחזרה. איך נגדיר את הממשק?",
+                fileName: { CS: "IRentable.cs", Java: "Rentable.java" },
+                tip: "ממשק מכיל רק חתימות של פעולות ללא גוף (ללא סוגריים מסולסלים) והצהרת מחלקה מממשת משתמשת בנקודתיים ב-C# ובמילת המפתח implements ב-Java!",
+                options: {
+                    CS: [
+                        {
+                            code: 'public interface IRentable\n{\n    void Rent();\n    void Return();\n}',
+                            explanation: "הבחירה המושלמת! הממשק מגדיר רק את ה'חוזה' - מה המחלקה חייבת לעשות, ללא שום מימוש פנימי.",
+                            isCorrect: true
+                        },
+                        {
+                            code: 'public class IRentable\n{\n    public void Rent() {}\n    public void Return() {}\n}',
+                            explanation: "לא נכון. הגדרתם מחלקה רגילה עם גוף פעולות ריק ולא ממשק (interface).",
+                            isCorrect: false
+                        },
+                        {
+                            code: 'public interface IRentable\n{\n    private void Rent();\n}',
+                            explanation: "שגיאת קומפילציה! פעולות בממשק חייבות להיות פומביות (public) מעצם הגדרתן, ואין לכתוב בהן הרשאות גישה פרטיות.",
+                            isCorrect: false
+                        }
+                    ],
+                    Java: [
+                        {
+                            code: 'public interface Rentable {\n    void rent();\n    void returnItem();\n}',
+                            explanation: "מצוין! ב-Java הגדרת ממשק נעשית באמצעות מילת המפתח interface וכוללת רק חתימות פעולה.",
+                            isCorrect: true
+                        },
+                        {
+                            code: 'public class Rentable implements Interface {\n    void rent();\n}',
+                            explanation: "שגיאת סינטקס! זו אינה דרך תקינה להגדרת ממשק ב-Java.",
+                            isCorrect: false
+                        },
+                        {
+                            code: 'public interface Rentable {\n    private void rent() {}\n}',
+                            explanation: "לא נכון. ממשקים אינם יכולים להכיל פעולות פרטיות עם גוף (מימוש) בגרסה הבסיסית הנדרשת לבגרות.",
+                            isCorrect: false
+                        }
+                    ]
+                },
+                getCodeTemplate: function(lang, placeholder) {
+                    if (lang === 'CS') {
+                        return `${placeholder}`;
+                    } else {
+                        return `${placeholder}`;
+                    }
+                }
+            }
+        };
+
+        // UI Language Changer
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            
+            // Toggle Button styling
+            document.getElementById('btn-cs').className = lang === 'CS' 
+                ? 'px-3 py-1.5 rounded-lg text-sm font-black transition-all bg-amber-500 text-white shadow' 
+                : 'px-3 py-1.5 rounded-lg text-sm font-black transition-all text-slate-600';
+            document.getElementById('btn-java').className = lang === 'Java' 
+                ? 'px-3 py-1.5 rounded-lg text-sm font-black transition-all bg-amber-500 text-white shadow' 
+                : 'px-3 py-1.5 rounded-lg text-sm font-black transition-all text-slate-600';
+            
+            document.getElementById('lang-indicator').innerText = lang === 'CS' ? 'C# Syntax Active' : 'Java Syntax Active';
+
+            loadLevel(currentLevel);
+        }
+
+        // Load Level data to UI
+        function loadLevel(lvl) {
+            currentLevel = lvl;
+            const levelData = levels[lvl];
+
+            // Update Labels
+            document.getElementById('level-badge').innerText = levelData.badge;
+            document.getElementById('level-title').innerText = levelData.title;
+            document.getElementById('level-description').innerText = levelData.description;
+            document.getElementById('file-name').innerText = levelData.fileName[currentLanguage];
+            document.getElementById('tip-text').innerText = levelData.tip;
+
+            // Reset selected option
+            selectedOptionIndex = null;
+
+            // Render Options
+            const optContainer = document.getElementById('options-container');
+            optContainer.innerHTML = '';
+
+            const currentOptions = levelData.options[currentLanguage];
+            currentOptions.forEach((opt, idx) => {
+                const optBtn = document.createElement('button');
+                optBtn.className = "text-right p-4 rounded-2xl border-2 border-slate-200 hover:border-amber-400 hover:bg-amber-50/50 transition-all text-xs font-mono text-slate-700 whitespace-pre-wrap flex flex-col justify-between h-full bg-white";
+                optBtn.id = `opt-${idx}`;
+                optBtn.onclick = () => selectOption(idx);
+                
+                // escape html just in case
+                const cleanCode = opt.code.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                optBtn.innerHTML = `<code>${cleanCode}</code>`;
+                optContainer.appendChild(optBtn);
+            });
+
+            updateCodeWorkspace();
+            document.getElementById('feedback-panel').classList.add('hidden');
+        }
+
+        // Update active code preview box based on selection
+        function updateCodeWorkspace() {
+            const levelData = levels[currentLevel];
+            let placeholder = "/* ✍️ כתבו את הקוד שלכם כאן */";
+            
+            if (selectedOptionIndex !== null) {
+                placeholder = levelData.options[currentLanguage][selectedOptionIndex].code;
+            }
+
+            const rawCode = levelData.getCodeTemplate(currentLanguage, placeholder);
+            document.getElementById('code-block').innerText = rawCode;
+        }
+
+        // Select an Option from bottom grid
+        function selectOption(index) {
+            const levelData = levels[currentLevel];
+            const optionsCount = levelData.options[currentLanguage].length;
+
+            for (let i = 0; i < optionsCount; i++) {
+                const btn = document.getElementById(`opt-${i}`);
+                if (btn) {
+                    if (i === index) {
+                        btn.classList.add('border-amber-500', 'bg-amber-50');
+                        btn.classList.remove('border-slate-200');
+                    } else {
+                        btn.classList.add('border-slate-200');
+                        btn.classList.remove('border-amber-500', 'bg-amber-50');
+                    }
+                }
+            }
+
+            selectedOptionIndex = index;
+            updateCodeWorkspace();
+        }
+
+        // Mock Compile of Code
+        function compileCode() {
+            if (selectedOptionIndex === null) {
+                showModal("🤔 רגע אחד...", "יש לבחור אחת מהאפשרויות למטה לפני שמריצים קוד!", "❓");
+                return;
+            }
+
+            const levelData = levels[currentLevel];
+            const choice = levelData.options[currentLanguage][selectedOptionIndex];
+
+            const fbPanel = document.getElementById('feedback-panel');
+            const fbIcon = document.getElementById('feedback-icon');
+            const fbTitle = document.getElementById('feedback-title');
+            const fbExplanation = document.getElementById('feedback-explanation');
+
+            fbPanel.classList.remove('hidden');
+
+            if (choice.isCorrect) {
+                playSound('success');
+                fbIcon.innerText = "🎉";
+                fbTitle.className = "text-base font-black text-emerald-600";
+                fbTitle.innerText = "הקוד עבר קומפילציה בהצלחה! +25 קוקוסים";
+                fbExplanation.innerText = choice.explanation;
+
+                // Award points
+                coins += 25;
+                reputation += 10;
+                updateStats();
+
+                // Build item on beach visually
+                addBeachAttraction(currentLevel);
+
+                // Save player progress to leaderboard (Firebase or localStorage fallback)
+                syncProgress();
+
+                // Show success modal to advance
+                setTimeout(() => {
+                    let nextMsg = "מוכנים לעבור לשלב הבא ולהגדיל את העסק?";
+                    let btnText = "נעבור לשלב הבא! 🚀";
+                    if (currentLevel === 4) {
+                        nextMsg = "איזה אלופי על! בניתם קוד חסין תקלות ועיצבתם חוף פשוט מושלם!";
+                        btnText = "סיימתי בגבורה! 🏖️";
+                    }
+                    showModal(`השלב הושלם בהצלחה! ✨`, `${choice.explanation}\n\n${nextMsg}`, "😎", btnText, () => {
+                        if (currentLevel < 4) {
+                            loadLevel(currentLevel + 1);
+                        } else {
+                            showWinnerCertificate();
+                        }
+                    });
+                }, 1000);
+
+            } else {
+                playSound('error');
+                fbIcon.innerText = "❌";
+                fbTitle.className = "text-base font-black text-rose-600";
+                fbTitle.innerText = "שגיאת קומפילציה (Compilation Error)";
+                fbExplanation.innerText = choice.explanation;
+                showModal("גליץ' בקוד! 💥", choice.explanation, "👾", "אנסה שוב לחשוב");
+            }
+        }
+
+        // Visual Attraction builder on the simulated beach
+        function addBeachAttraction(level) {
+            if (level === 0) {
+                activeBeachItems = [];
+                restoreBeachAttractionsUI();
+                return;
+            }
+
+            let emoji = "🏖️";
+            let name = "כללי";
+
+            if (level === 1) {
+                emoji = "⛱️";
+                name = "שמשיה בסיסית";
+            } else if (level === 2) {
+                emoji = "🍦";
+                name = "דוכן ארטיקים";
+            } else if (level === 3) {
+                emoji = "🍧";
+                name = "גלידת פולימורפיזם";
+            } else if (level === 4) {
+                emoji = "🏄";
+                name = "מועדון גלישה";
+            }
+
+            // Avoid duplicating attraction on the same stage success if it was loaded already
+            if (!activeBeachItems.some(item => item.level === level)) {
+                activeBeachItems.push({ level, emoji, name });
+            }
+
+            restoreBeachAttractionsUI();
+            
+            // Adjust customer bubble
+            if (level === 1) {
+                updateBubble("👦", "איזה יופי של שמשיה! עכשיו יש קצת צל מקרני ה-OOP החמות!");
+            } else if (level === 2) {
+                updateBubble("👩", "יאמי! ארטיק בננה וניל שירש את כל התכונות מהארטיק הבסיסי!");
+            } else if (level === 3) {
+                updateBubble("👨", "שמעתם את זה? הגלידה המורשת הפעילה פונקציה דרוסה פולימורפית!");
+            } else if (level === 4) {
+                updateBubble("🦸", "מועדון גלישה שלם שעובד לפי חוזה (ממשק) של השכרת ציוד! גאוני!");
+            }
+        }
+
+        function updateBubble(avatar, text) {
+            document.getElementById('visitor-bubble-avatar').innerText = avatar;
+            document.getElementById('visitor-bubble-text').innerText = text;
+        }
+
+        function updateStats() {
+            document.getElementById('coconut-coins').innerText = coins;
+            document.getElementById('reputation-score').innerText = reputation;
+        }
+
+        // Custom modal control
+        let currentModalCallback = null;
+
+        function showModal(title, body, emoji = "👑", btnText = "מצוין, קדימה!", callback = null) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-body').innerText = body;
+            document.getElementById('modal-emoji').innerText = emoji;
+            
+            const btn = document.querySelector('#custom-modal button');
+            btn.innerText = btnText;
+
+            currentModalCallback = callback;
+            document.getElementById('custom-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('custom-modal').classList.add('hidden');
+            if (currentModalCallback) {
+                currentModalCallback();
+                currentModalCallback = null;
+            }
+        }
+
+        // Live simulation loop (Gamified run of beach)
+        function runBeachSimulation() {
+            if (activeBeachItems.length === 0) {
+                showModal("🏖️ החוף ריק מקוד!", "אי אפשר להריץ סימולציה ללא לפחות מחלקה מתוכנתת אחת! פתרו את שלב 1 תחילה.", "⚠️", "הבנתי, אפתור קודם!");
+                return;
+            }
+
+            // Simple visual sound effect loop
+            playSound('coin');
+            
+            day++;
+            document.getElementById('day-counter').innerText = `יום ${day} מתוך 30`;
+
+            // Collect income based on attractions
+            let income = 0;
+            activeBeachItems.forEach(item => {
+                income += item.level * 15; // More advanced OOP generates more profit
+            });
+
+            coins += income;
+            reputation += activeBeachItems.length * 3;
+            updateStats();
+
+            // Sync with Firebase/Local Mode
+            syncProgress();
+
+            // Spawn floating text emojis on sand
+            const feedbackContainer = document.getElementById('floating-feedback-container');
+            feedbackContainer.innerHTML = '';
+            
+            const emojis = ["🥥 +15", "😎 +5", "🔥 מוניטין", "🥥 +" + income];
+            emojis.forEach((txt, idx) => {
+                const el = document.createElement('div');
+                el.className = "absolute text-xs font-black text-emerald-600 bg-white px-2 py-1 rounded-full shadow float-emoji";
+                el.style.left = `${20 + idx * 25}%`;
+                el.style.top = `${40 + (idx % 2) * 15}%`;
+                el.innerText = txt;
+                feedbackContainer.appendChild(el);
+            });
+
+            updateBubble("🏄", "יום מדהים בחוף! קוד ה-OOP שלכם מזרים לנו קוקוסים ולקוחות מאושרים!");
+        }
+
+        // Certificate of completion
+        function showWinnerCertificate() {
+            showModal(
+                "👑 אלוף ה-OOP של הקיץ!", 
+                `מזל טוב! השלמתם את כל 4 שלבי תכנון החוף בעזרת הנדסת תוכנה מונחית עצמים.\n\nצברתם ${coins} קוקוסים ו-${reputation} נקודות מוניטין!\nכעת אתם שולטים בירושה, פולימורפיזם, מחלקות בסיס וממשקים, ומוכנים ב-100% לשנת הלימודים הבאה ולבגרות בתמ"ע!`, 
+                "🏆", 
+                "איזה כיף! לחוף הים שלי 🏄",
+                () => {
+                    // Reset to free sandbox play
+                    coins += 500;
+                    updateStats();
+                    syncProgress();
+                }
+            );
+        }
+
+        function showSlotInfo() {
+            showModal("בונים מחלקות", "כל אובייקט בחוף מייצג מופע (Instance) של מחלקה שכתבנו. המשיכו לפתור את השלבים כדי לשחרר את כל המשבצות החסומות!", "📦");
+        }
+
+        // Run setup on startup
+        window.onload = function() {
+            loadLevel(1);
+        };
+    </script>
+</body>
+</html>
