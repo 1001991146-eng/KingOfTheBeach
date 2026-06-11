@@ -127,8 +127,8 @@
                     <span class="text-xs text-amber-400 font-mono font-bold" id="lang-indicator">C# Syntax Active</span>
                 </div>
 
-                <!-- Code Workspace -->
-                <div class="p-6 font-mono text-sm text-slate-300 leading-relaxed overflow-x-auto min-h-[320px] bg-slate-950">
+                <!-- Code Workspace (Strictly LTR for English Code and comments) -->
+                <div class="p-6 font-mono text-sm text-slate-300 leading-relaxed overflow-x-auto min-h-[320px] bg-slate-950 text-left" dir="ltr">
                     <pre id="code-block" class="whitespace-pre-wrap"></pre>
                 </div>
 
@@ -154,16 +154,19 @@
 
         </section>
 
-        <!-- Right Column: Live Beach Simulator / Leaderboard Tabbed Panel (5 Columns) -->
+        <!-- Right Column: Live Beach Simulator / Leaderboard / Teacher Dashboard Tabbed Panel (5 Columns) -->
         <section class="lg:col-span-5 flex flex-col gap-4">
             
             <!-- Tab Controls -->
-            <div class="bg-white/80 p-1.5 rounded-2xl shadow-md flex gap-2 border border-slate-200">
-                <button id="tab-beach" onclick="switchRightTab('beach')" class="flex-1 py-2.5 rounded-xl font-black text-xs transition-all bg-amber-500 text-white shadow">
-                    🏖️ סימולטור החוף
+            <div class="bg-white/80 p-1.5 rounded-2xl shadow-md flex gap-1 border border-slate-200">
+                <button id="tab-beach" onclick="switchRightTab('beach')" class="flex-1 py-2 rounded-xl font-black text-[11px] transition-all bg-amber-500 text-white shadow">
+                    🏖️ חוף
                 </button>
-                <button id="tab-leaderboard" onclick="switchRightTab('leaderboard')" class="flex-1 py-2.5 rounded-xl font-black text-xs transition-all text-slate-600 hover:bg-slate-100 flex items-center justify-center gap-1.5">
-                    🏆 טבלת המגמה <span class="bg-rose-500 text-white px-1.5 py-0.2 rounded-full text-[9px] animate-pulse">LIVE</span>
+                <button id="tab-leaderboard" onclick="switchRightTab('leaderboard')" class="flex-1 py-2 rounded-xl font-black text-[11px] transition-all text-slate-600 hover:bg-slate-100 flex items-center justify-center gap-1">
+                    🏆 טבלה <span class="bg-rose-500 text-white px-1 py-0.2 rounded-full text-[8px] animate-pulse">LIVE</span>
+                </button>
+                <button id="tab-teacher" onclick="switchRightTab('teacher')" class="flex-1 py-2 rounded-xl font-black text-[11px] transition-all text-slate-600 hover:bg-slate-100 flex items-center justify-center gap-1">
+                    🧑‍🏫 פאנל מורה
                 </button>
             </div>
 
@@ -255,6 +258,129 @@
                 <div class="bg-slate-950 p-4 border-t border-slate-800 flex justify-between items-center text-xs">
                     <span class="text-slate-400">השיא המקומי שלך:</span>
                     <span class="font-extrabold text-rose-400" id="local-rank-preview">מחשב דירוג...</span>
+                </div>
+            </div>
+
+            <!-- Content Area: Teacher Dashboard (🧑‍🏫) -->
+            <div id="right-panel-teacher" class="bg-slate-950 text-slate-100 rounded-3xl shadow-xl overflow-hidden border-4 border-slate-800 h-[520px] flex flex-col hidden">
+                <!-- Teacher Header -->
+                <div class="bg-slate-900 p-4 border-b border-slate-800">
+                    <div class="flex justify-between items-center">
+                        <h3 class="font-black text-sm text-emerald-400 flex items-center gap-1.5">
+                            <span>🧑‍🏫</span> ממשק מורה: מעקב פדגוגי כיתתי
+                        </h3>
+                        <span class="text-[9px] bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full font-extrabold">תשפ"ו</span>
+                    </div>
+                    <p class="text-[10px] text-slate-400 mt-1">מערכת ניתוח שליטה בעקרונות הנדסת תוכנה והערכת הבנה פולימורפית.</p>
+                </div>
+
+                <!-- Main Scrollable Dashboard Content -->
+                <div class="flex-grow overflow-y-auto p-4 space-y-4">
+                    
+                    <!-- Global Class Analytics -->
+                    <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4">
+                        <h4 class="text-xs font-black text-slate-300 mb-3 flex items-center gap-1.5">
+                            <span>📊</span> תמונת מצב כיתתית
+                        </h4>
+                        <!-- Level progression bar -->
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-[11px] font-bold">
+                                <span class="text-slate-400">ממוצע שלב נוכחי של הכיתה:</span>
+                                <span class="text-emerald-400" id="class-avg-level-text">שלב 1.0</span>
+                            </div>
+                            <div class="w-full bg-slate-850 h-2 rounded-full overflow-hidden">
+                                <div id="class-avg-level-bar" class="bg-gradient-to-l from-emerald-400 to-teal-500 h-2 transition-all" style="width: 25%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Concepts Mastery Breakdown -->
+                        <div class="grid grid-cols-2 gap-3 mt-4 text-[10px]">
+                            <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-900">
+                                <p class="text-slate-400 font-bold">מחלקה ובנאי (this)</p>
+                                <div class="flex items-center justify-between mt-1">
+                                    <span class="font-black text-amber-400" id="mastery-c1">100%</span>
+                                    <span class="text-slate-500">רמה 1</span>
+                                </div>
+                            </div>
+                            <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-900">
+                                <p class="text-slate-400 font-bold">ירושה (base/super)</p>
+                                <div class="flex items-center justify-between mt-1">
+                                    <span class="font-black text-rose-400" id="mastery-c2">0%</span>
+                                    <span class="text-slate-500">רמה 2</span>
+                                </div>
+                            </div>
+                            <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-900">
+                                <p class="text-slate-400 font-bold">פולימורפיזם ודריסה</p>
+                                <div class="flex items-center justify-between mt-1">
+                                    <span class="font-black text-purple-400" id="mastery-c3">0%</span>
+                                    <span class="text-slate-500">רמה 3</span>
+                                </div>
+                            </div>
+                            <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-900">
+                                <p class="text-slate-400 font-bold">ממשקים (Interface)</p>
+                                <div class="flex items-center justify-between mt-1">
+                                    <span class="font-black text-sky-400" id="mastery-c4">0%</span>
+                                    <span class="text-slate-500">רמה 4</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pedagogical Alert warning -->
+                        <div class="mt-3 bg-amber-500/10 border border-amber-500/20 p-2.5 rounded-xl text-[10px] text-amber-400 flex items-start gap-2">
+                            <span>🚨</span>
+                            <div>
+                                <strong class="font-black block">ממצא פדגוגי כיתתי:</strong>
+                                <span id="pedagogical-focus-text">התלמידים מתחילים כעת את שלבי הירושה. מומלץ להקפיד על תרגול הבנת ההבדל בין מחלקת בסיס למחלקה נגזרת.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Students List with detailed insights -->
+                    <div class="space-y-2">
+                        <h4 class="text-xs font-black text-slate-300 flex items-center justify-between">
+                            <span>👥</span> רשימת תלמידים פעילים
+                            <span class="text-[10px] text-slate-500" id="teacher-students-count">0 תלמידים</span>
+                        </h4>
+                        
+                        <!-- Dynamic Students Container -->
+                        <div id="teacher-students-list" class="space-y-2">
+                            <!-- Filled dynamically by JavaScript -->
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Active Student Detail Panel (Dynamic Popup inside card) -->
+                <div id="student-detail-panel" class="absolute inset-x-0 bottom-0 bg-slate-900 border-t border-slate-800 p-4 rounded-t-3xl shadow-2xl transition-all transform translate-y-full hidden z-20">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <h5 class="text-sm font-black text-emerald-400" id="sd-name">ישראל ישראלי</h5>
+                            <p class="text-[10px] text-slate-400" id="sd-meta">סטטוס: שלב 2 | 2 מוצרים בחוף</p>
+                        </div>
+                        <button onclick="closeStudentDetails()" class="text-slate-400 hover:text-white text-xs bg-slate-800 w-6 h-6 rounded-full flex items-center justify-center">✕</button>
+                    </div>
+
+                    <!-- Strengths and Weaknesses Analyzed locally -->
+                    <div class="space-y-2 text-xs">
+                        <div class="bg-emerald-500/10 border border-emerald-500/20 p-2.5 rounded-xl">
+                            <strong class="text-emerald-400 flex items-center gap-1">🟢 נקודות חוזקה:</strong>
+                            <p class="text-slate-300 mt-1 text-[11px]" id="sd-strengths">מראה הבנה נכונה של הכמסה, שימוש תקין ב-this לאתחול שדות המחלקה הפנימיים.</p>
+                        </div>
+                        <div class="bg-rose-500/10 border border-rose-500/20 p-2.5 rounded-xl">
+                            <strong class="text-rose-400 flex items-center gap-1">🔴 נושאים לחיזוק ותרגול:</strong>
+                            <p class="text-slate-300 mt-1 text-[11px]" id="sd-weaknesses">נדרש חיזוק בהבנת בנאי משני המפעיל את בנאי האב ופנייה נכונה לתכונות protected.</p>
+                        </div>
+                        <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-850">
+                            <strong class="text-amber-400 flex items-center gap-1">💡 המלצה פדגוגית למורה:</strong>
+                            <p class="text-slate-300 mt-1 text-[11px]" id="sd-recommendation">תנו לתלמיד תרגיל כתיבה עצמאי קטן המממש ירושה (למשל, מחלקת מלבן ומחלקת תיבה יורשת).</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Stats -->
+                <div class="bg-slate-950 p-4 border-t border-slate-800 flex justify-between items-center text-xs">
+                    <span class="text-slate-400">מורה מחובר:</span>
+                    <span class="font-extrabold text-emerald-400">לוח הערכה לייב 📊</span>
                 </div>
             </div>
 
@@ -595,6 +721,7 @@
                 });
 
                 window.renderLeaderboardUI(results);
+                window.calculateClassroomMetrics(results);
             }, (err) => {
                 console.error("Leaderboard Real-time Sync Error:", err);
             });
@@ -710,6 +837,7 @@
             // Sort mock players locally
             list.sort((a, b) => b.reputation - a.reputation);
             window.renderLeaderboardUI(list);
+            window.calculateClassroomMetrics(list);
         }
 
         // Automatic boot checking if user was previously in bypass mode
@@ -764,7 +892,7 @@
         }
     </script>
 
-    <!-- Game Logic & Levels State Machine -->
+    <!-- Game Logic, Levels State Machine & Teacher Dashboard Module -->
     <script>
         let currentLanguage = 'CS'; // Default is C#
         let coins = 100;
@@ -913,23 +1041,34 @@
             }
         }
 
-        // Switch between right panel tabs
+        // Switch between right panel tabs (Added Teacher tab handling)
         function switchRightTab(tabName) {
             const beachBtn = document.getElementById('tab-beach');
             const lbBtn = document.getElementById('tab-leaderboard');
+            const teachBtn = document.getElementById('tab-teacher');
+
             const beachPanel = document.getElementById('right-panel-beach');
             const lbPanel = document.getElementById('right-panel-leaderboard');
+            const teachPanel = document.getElementById('right-panel-teacher');
+
+            // Hide all first
+            beachPanel.classList.add('hidden');
+            lbPanel.classList.add('hidden');
+            teachPanel.classList.add('hidden');
+
+            beachBtn.className = "flex-1 py-2 rounded-xl font-black text-[11px] transition-all text-slate-600 hover:bg-slate-100";
+            lbBtn.className = "flex-1 py-2 rounded-xl font-black text-[11px] transition-all text-slate-600 hover:bg-slate-100 flex items-center justify-center gap-1";
+            teachBtn.className = "flex-1 py-2 rounded-xl font-black text-[11px] transition-all text-slate-600 hover:bg-slate-100 flex items-center justify-center gap-1";
 
             if (tabName === 'beach') {
-                beachBtn.className = "flex-1 py-2.5 rounded-xl font-black text-xs transition-all bg-amber-500 text-white shadow";
-                lbBtn.className = "flex-1 py-2.5 rounded-xl font-black text-xs transition-all text-slate-600 hover:bg-slate-100 flex items-center justify-center gap-1.5";
+                beachBtn.className = "flex-1 py-2 rounded-xl font-black text-[11px] transition-all bg-amber-500 text-white shadow";
                 beachPanel.classList.remove('hidden');
-                lbPanel.classList.add('hidden');
-            } else {
-                lbBtn.className = "flex-1 py-2.5 rounded-xl font-black text-xs transition-all bg-amber-500 text-white shadow flex items-center justify-center gap-1.5";
-                beachBtn.className = "flex-1 py-2.5 rounded-xl font-black text-xs transition-all text-slate-600 hover:bg-slate-100";
+            } else if (tabName === 'leaderboard') {
+                lbBtn.className = "flex-1 py-2 rounded-xl font-black text-[11px] transition-all bg-amber-500 text-white shadow flex items-center justify-center gap-1";
                 lbPanel.classList.remove('hidden');
-                beachPanel.classList.add('hidden');
+            } else {
+                teachBtn.className = "flex-1 py-2 rounded-xl font-black text-[11px] transition-all bg-amber-500 text-white shadow flex items-center justify-center gap-1";
+                teachPanel.classList.remove('hidden');
             }
         }
 
@@ -986,6 +1125,141 @@
             document.getElementById('local-rank-preview').innerText = localRank;
         };
 
+        // --- NEW TEACHER DASHBOARD PEDAGOGICAL EVALUATION MODULE ---
+        // Dynamically processes and calculates real-time class diagnostics
+        window.calculateClassroomMetrics = function(playersList) {
+            if (!playersList || playersList.length === 0) return;
+
+            // 1. Calculate Average Class Level
+            let sumLevels = 0;
+            playersList.forEach(p => sumLevels += (p.level || 1));
+            const avgLevel = sumLevels / playersList.length;
+
+            document.getElementById('class-avg-level-text').innerText = `שלב ${avgLevel.toFixed(1)}`;
+            // Normalize level (1-4) to 0-100% progress
+            const progressPercent = Math.min(100, Math.max(10, ((avgLevel - 1) / 3) * 100));
+            document.getElementById('class-avg-level-bar').style.width = `${progressPercent}%`;
+
+            // 2. Concept Mastery Breakdown
+            // Level 1: Basic Classes & 'this'
+            // Level 2: Inheritance & 'super'/'base'
+            // Level 3: Polymorphism & Action Overriding
+            // Level 4: Interfaces & Contracts
+            let countL1 = 0, countL2 = 0, countL3 = 0, countL4 = 0;
+            playersList.forEach(p => {
+                const lvl = p.level || 1;
+                if (lvl >= 1) countL1++;
+                if (lvl >= 2) countL2++;
+                if (lvl >= 3) countL3++;
+                if (lvl >= 4) countL4++;
+            });
+
+            const pctL1 = Math.round((countL1 / playersList.length) * 100);
+            const pctL2 = Math.round((countL2 / playersList.length) * 100);
+            const pctL3 = Math.round((countL3 / playersList.length) * 100);
+            const pctL4 = Math.round((countL4 / playersList.length) * 100);
+
+            document.getElementById('mastery-c1').innerText = `${pctL1}%`;
+            document.getElementById('mastery-c2').innerText = `${pctL2}%`;
+            document.getElementById('mastery-c3').innerText = `${pctL3}%`;
+            document.getElementById('mastery-c4').innerText = `${pctL4}%`;
+
+            // 3. Automated Class Insights & Weaknesses Analysis
+            let weakConcept = "מחלקה ובנאי";
+            let weakText = "רוב התלמידים עדיין לומדים את מושגי היסוד. מומלץ לוודא שהם שולטים היטב במילה המפתח this לפני שעוברים לירושה.";
+            
+            const minPct = Math.min(pctL1, pctL2, pctL3, pctL4);
+            if (minPct === pctL4) {
+                weakConcept = "ממשקים (Interfaces)";
+                weakText = "רמת השליטה בממשקים היא הנמוכה ביותר כרגע. מומלץ לחזק את מושג ה'חוזה' הפדגוגי ולתרגל שאלות בגרות העוסקות במערך מטיפוס הממשק.";
+            } else if (minPct === pctL3) {
+                weakConcept = "פולימורפיזם ודריסה";
+                weakText = "הבנת הפולימורפיזם דורשת חיזוק. כדאי להסביר מחדש את דימוי המשקפיים (טיפוס הפניה לעומת עצם בזיכרון) ולתרגל מעקב אחר קטעי קוד עם Late Binding.";
+            } else if (minPct === pctL2) {
+                weakConcept = "ירושה (Inheritance)";
+                weakText = "נראה שיש קושי בנושא הירושה. כדאי לבצע חזרה על מנגנון הפעלת בנאי העל (super/base) ולוודא שהתלמידים מבינים שאין שבירת כמסה בירושת תכונות.";
+            }
+
+            document.getElementById('pedagogical-focus-text').innerHTML = `<strong>הנושא החלש ביותר: ${weakConcept}.</strong><br>${weakText}`;
+            document.getElementById('teacher-students-count').innerText = `${playersList.length} תלמידים`;
+
+            // 4. Render Roster inside Teacher panel
+            const rosterContainer = document.getElementById('teacher-students-list');
+            rosterContainer.innerHTML = '';
+
+            playersList.forEach((player) => {
+                const item = document.createElement('div');
+                item.className = "bg-slate-900 border border-slate-800 p-3 rounded-2xl flex items-center justify-between transition-all hover:bg-slate-850";
+                
+                // Color levels badges
+                let lvlColor = "bg-amber-500/10 text-amber-400 border border-amber-500/20";
+                if (player.level >= 4) lvlColor = "bg-sky-500/10 text-sky-400 border border-sky-500/20";
+                else if (player.level >= 3) lvlColor = "bg-purple-500/10 text-purple-400 border border-purple-500/20";
+                else if (player.level >= 2) lvlColor = "bg-rose-500/10 text-rose-400 border border-rose-500/20";
+
+                item.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <span class="text-xl">👨‍🎓</span>
+                        <div>
+                            <p class="text-xs font-black text-slate-200">${player.name || "אנונימי"}</p>
+                            <p class="text-[9px] text-slate-400">מוניטין: ${player.reputation || 0} • קוקוסים: ${player.coins || 100}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[9px] font-bold px-2 py-0.5 rounded-full ${lvlColor}">שלב ${player.level || 1}</span>
+                        <button onclick="viewStudentDetails('${player.name}', ${player.level || 1}, ${player.reputation || 0})" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold text-[9px] px-2.5 py-1 rounded-lg transition-colors">
+                            נתח 📊
+                        </button>
+                    </div>
+                `;
+                rosterContainer.appendChild(item);
+            });
+        };
+
+        // Displays individual pedagogical insights popup for a specific student
+        window.viewStudentDetails = function(name, level, reputation) {
+            document.getElementById('sd-name').innerText = name;
+            document.getElementById('sd-meta').innerText = `סטטוס למידה: שלב ${level} מתוך 4 | מוניטין צבור: ${reputation}`;
+
+            let strengths = "הבנה טובה של יצירת עצמים, שימוש תקין במילה this לשמירה על עקרון הכמסה.";
+            let weaknesses = "אין עדיין קושי ניכר, אך התלמיד רק התחיל ללמוד את מושג הירושה.";
+            let recommendation = "הזמינו את התלמיד להשלים את שלב 2 של הירושה ולוודא שהבנת השימוש ב-super/base יושבת טוב.";
+
+            if (level === 2) {
+                strengths = "מבין היטב את מושג הירושה (יחס IS-A) ומצליח לקרוא בהצלחה לבנאי של מחלקת האב.";
+                weaknesses = "מומלץ לבדוק אם הוא זוכר שהקריאה לבנאי האב חייבת להתבצע תמיד בשורה הראשונה.";
+                recommendation = "תנו לו תרגיל כיתה קצר המדגים שימוש חוזר בקוד מול כפל קוד כדי להמחיש את יתרון הירושה.";
+            } else if (level === 3) {
+                strengths = "מראה שליטה נהדרת בפולימורפיזם ודריסת פעולות. יודע לעשות שימוש חוזר בפעולת האב.";
+                weaknesses = "עלול להתבלבל בבגרות בנושאי המרה (Casting) כלפי מטה ושימוש ב-instanceof.";
+                recommendation = "מומלץ לתת לו לפתור שאלות בגרות של מעקב אחר טבלאות פלט המשלבות פולימורפיזם.";
+            } else if (level === 4) {
+                strengths = "מצטיין המגמה! שולט בכל מושגי הליבה כולל מימוש ממשקים (Interfaces) והבנת טיפוסי התנהגות.";
+                weaknesses = "ייתכן ויתקשה בהבנת ההבדל העמוק בין מחלקה מופשטת (Abstract) לממשק.";
+                recommendation = "שאלו אותו שאלת חשיבה בעל פה: 'מתי נבחר להשתמש במחלקה מופשטת ומתי בממשק?' ודונו איתו על כך.";
+            }
+
+            document.getElementById('sd-strengths').innerText = strengths;
+            document.getElementById('sd-weaknesses').innerText = weaknesses;
+            document.getElementById('sd-recommendation').innerText = recommendation;
+
+            // Slide up the panel
+            const panel = document.getElementById('student-detail-panel');
+            panel.classList.remove('hidden');
+            setTimeout(() => {
+                panel.classList.remove('translate-y-full');
+            }, 50);
+            playSound('success');
+        };
+
+        window.closeStudentDetails = function() {
+            const panel = document.getElementById('student-detail-panel');
+            panel.classList.add('translate-y-full');
+            setTimeout(() => {
+                panel.classList.add('hidden');
+            }, 300);
+        };
+
         // Restore UI attractions after loaded from Firestore / localStorage
         window.restoreBeachAttractionsUI = function() {
             const grid = document.getElementById('beach-grid');
@@ -1022,7 +1296,7 @@
             document.getElementById('active-count').innerText = `${activeBeachItems.length}/4 מוצרים`;
         };
 
-        // Level Definitions
+        // Level Definitions with strictly LTR formatted Java & C# code structures, and English comments
         const levels = {
             1: {
                 title: "הגדרת מחלקת הבסיס",
@@ -1068,9 +1342,9 @@
                 },
                 getCodeTemplate: function(lang, placeholder) {
                     if (lang === 'CS') {
-                        return `public class BeachItem\n{\n    protected string name;\n    protected double price;\n\n    public BeachItem(string name, double price)\n    {\n        ${placeholder}\n    }\n\n    public virtual string GetDescription()\n    {\n        return $"מוצר: {name}, מחיר: {price} קוקוסים";\n    }\n}`;
+                        return `public class BeachItem\n{\n    protected string name;\n    protected double price;\n\n    // Constructor to initialize items\n    public BeachItem(string name, double price)\n    {\n        ${placeholder}\n    }\n\n    // Virtual method to allow overriding\n    public virtual string GetDescription()\n    {\n        return $"Item: {name}, Price: {price} coconuts";\n    }\n}`;
                     } else {
-                        return `public class BeachItem {\n    protected String name;\n    protected double price;\n\n    public BeachItem(String name, double price) {\n        ${placeholder}\n    }\n\n    public String getDescription() {\n        return "מוצר: " + name + ", מחיר: " + price + " קוקוסים";\n    }\n}`;
+                        return `public class BeachItem {\n    protected String name;\n    protected double price;\n\n    // Constructor to initialize items\n    public BeachItem(String name, double price) {\n        ${placeholder}\n    }\n\n    // Standard method for description\n    public String getDescription() {\n        return "Item: " + name + ", Price: " + price + " coconuts";\n    }\n}`;
                     }
                 }
             },
@@ -1118,9 +1392,9 @@
                 },
                 getCodeTemplate: function(lang, placeholder) {
                     if (lang === 'CS') {
-                        return `public class IceCream : BeachItem\n{\n    private string flavor;\n\n    ${placeholder}\n    {\n        this.flavor = flavor;\n    }\n}`;
+                        return `public class IceCream : BeachItem\n{\n    private string flavor;\n\n    // Inherits name and price from base class\n    ${placeholder}\n    {\n        this.flavor = flavor;\n    }\n}`;
                     } else {
-                        return `public class IceCream extends BeachItem {\n    private String flavor;\n\n    ${placeholder}\n        this.flavor = flavor;\n    }\n}`;
+                        return `public class IceCream extends BeachItem {\n    private String flavor;\n\n    // Inherits name and price from super class\n    ${placeholder}\n        this.flavor = flavor;\n    }\n}`;
                     }
                 }
             },
@@ -1133,7 +1407,7 @@
                 options: {
                     CS: [
                         {
-                            code: 'public override string GetDescription()\n    {\n        return base.GetDescription() + $", טעם: {flavor}";\n    }',
+                            code: 'public override string GetDescription()\n    {\n        return base.GetDescription() + $", flavor: {flavor}";\n    }',
                             explanation: "מעולה! override מאפשרת לדרוס את הפעולה הווירטואלית, ו-base.GetDescription() קורא לפעולת האב ומאפשר שימוש חוזר בקוד!",
                             isCorrect: true
                         },
@@ -1150,7 +1424,7 @@
                     ],
                     Java: [
                         {
-                            code: '@Override\n    public String getDescription() {\n        return super.getDescription() + ", טעם: " + flavor;\n    }',
+                            code: '@Override\n    public String getDescription() {\n        return super.getDescription() + ", flavor: " + flavor;\n    }',
                             explanation: "תשובה מושלמת! האנוטציה @Override מוודאת שדרסתם נכון, ושימוש ב-super.getDescription() מייעל את הקוד.",
                             isCorrect: true
                         },
@@ -1168,9 +1442,9 @@
                 },
                 getCodeTemplate: function(lang, placeholder) {
                     if (lang === 'CS') {
-                        return `public class IceCream : BeachItem\n{\n    private string flavor;\n    // ... בנאי מוגדר ...\n\n    ${placeholder}\n}`;
+                        return `public class IceCream : BeachItem\n{\n    private string flavor;\n    // ... Constructor defined previously ...\n\n    // Overriding the base class method\n    ${placeholder}\n}`;
                     } else {
-                        return `public class IceCream extends BeachItem {\n    private String flavor;\n    // ... בנאי מוגדר ...\n\n    ${placeholder}\n}`;
+                        return `public class IceCream extends BeachItem {\n    private String flavor;\n    // ... Constructor defined previously ...\n\n    // Overriding the super class method\n    ${placeholder}\n}`;
                     }
                 }
             },
@@ -1265,13 +1539,14 @@
             const currentOptions = levelData.options[currentLanguage];
             currentOptions.forEach((opt, idx) => {
                 const optBtn = document.createElement('button');
-                optBtn.className = "text-right p-4 rounded-2xl border-2 border-slate-200 hover:border-amber-400 hover:bg-amber-50/50 transition-all text-xs font-mono text-slate-700 whitespace-pre-wrap flex flex-col justify-between h-full bg-white";
+                optBtn.className = "text-left p-4 rounded-2xl border-2 border-slate-200 hover:border-amber-400 hover:bg-amber-50/50 transition-all text-xs font-mono text-slate-700 whitespace-pre-wrap flex flex-col justify-between h-full bg-white";
                 optBtn.id = `opt-${idx}`;
                 optBtn.onclick = () => selectOption(idx);
+                optBtn.setAttribute('dir', 'ltr'); // Force LTR inside individual options
                 
                 // escape html just in case
                 const cleanCode = opt.code.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-                optBtn.innerHTML = `<code>${cleanCode}</code>`;
+                optBtn.innerHTML = `<code class="block text-left text-xs mb-3 text-slate-900 font-semibold">${cleanCode}</code><span class="text-right text-[10px] text-slate-500 block" dir="rtl">💡 קרא הסבר...</span>`;
                 optContainer.appendChild(optBtn);
             });
 
@@ -1282,7 +1557,7 @@
         // Update active code preview box based on selection
         function updateCodeWorkspace() {
             const levelData = levels[currentLevel];
-            let placeholder = "/* ✍️ כתבו את הקוד שלכם כאן */";
+            let placeholder = "/* ✍️ Write your code here */";
             
             if (selectedOptionIndex !== null) {
                 placeholder = levelData.options[currentLanguage][selectedOptionIndex].code;
@@ -1346,7 +1621,7 @@
                 // Build item on beach visually
                 addBeachAttraction(currentLevel);
 
-                // Save player progress to leaderboard (Firebase or localStorage fallback)
+                // Save player progress to leaderboard (Firebase)
                 syncProgress();
 
                 // Show success modal to advance
