@@ -4,7 +4,7 @@
   "description": "King of the Beach - OOP Edition",
   "main": "index.html",
   "scripts": {
-    "dev": "npx http-server -p 3000"
+    "dev": "npx http-server -p 3000 -c-1"
   },
   "dependencies": {}
 }
