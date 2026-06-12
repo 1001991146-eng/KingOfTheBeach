@@ -1,0 +1,10 @@
+{
+  "name": "king-of-the-beach-oop",
+  "version": "1.0.0",
+  "description": "King of the Beach - OOP Edition",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npx http-server -p 3000"
+  },
+  "dependencies": {}
+}

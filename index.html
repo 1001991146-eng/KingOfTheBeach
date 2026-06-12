@@ -1,0 +1,1550 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>King of the Beach - OOP Edition</title>
+    <!-- Tailwind CSS for modern responsive styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Heebo for Hebrew, Outfit and Fira Code for code -->
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;600;800;900&family=Outfit:wght@400;600;800&family=Fira+Code:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Heebo', sans-serif;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #fef9c3 100%);
+        }
+        .font-mono {
+            font-family: 'Fira Code', monospace;
+        }
+        .font-outfit {
+            font-family: 'Outfit', sans-serif;
+        }
+        .beach-sand {
+            background-color: #fef08a;
+            background-image: radial-gradient(#fde047 1px, transparent 1px);
+            background-size: 8px 8px;
+        }
+        .water-wave {
+            background: linear-gradient(180deg, #38bdf8 0%, #0284c7 100%);
+            animation: wave 5s ease-in-out infinite alternate;
+        }
+        @keyframes wave {
+            0% { transform: translateY(0) scaleY(1); }
+            100% { transform: translateY(-7px) scaleY(1.06); }
+        }
+        .float-emoji {
+            animation: floatUp 2s ease-out forwards;
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(10px) scale(0.8); opacity: 0; }
+            10% { opacity: 1; transform: translateY(0) scale(1.15); }
+            100% { transform: translateY(-70px) scale(0.9); opacity: 0; }
+        }
+        .sparkle-win {
+            animation: pulse-border 1.5s infinite;
+        }
+        @keyframes pulse-border {
+            0%, 100% { border-color: rgba(14, 165, 233, 0.4); box-shadow: 0 0 0px rgba(14, 165, 233, 0.2); }
+            50% { border-color: rgba(14, 165, 233, 1); box-shadow: 0 0 12px rgba(14, 165, 233, 0.6); }
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col text-slate-800 selection:bg-sky-200">
+
+    <!-- Top Navigation Bar -->
+    <header class="bg-white/90 backdrop-blur shadow-md sticky top-0 z-40 px-4 py-3 border-b border-sky-100">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <span class="text-4xl animate-bounce">🏖️</span>
+                <div>
+                    <h1 class="text-2xl font-black text-sky-600 tracking-tight flex items-center gap-2">
+                        <span>King of the Beach</span>
+                        <span class="text-xs bg-amber-500 text-white font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">OOP Edition</span>
+                    </h1>
+                    <p class="text-xs text-slate-500 font-bold">מדעי המחשב בכיף: לומדים תכנות מונחה עצמים לקראת הבגרות!</p>
+                </div>
+            </div>
+            
+            <!-- Global Stats & Controls -->
+            <div class="flex flex-wrap items-center justify-center gap-3">
+                <!-- Connection Status Badge -->
+                <span id="connection-status-badge" class="text-[10px] bg-emerald-100 text-emerald-800 border border-emerald-300 px-2.5 py-1 rounded-full font-black flex items-center gap-1">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                    מחובר לענן המגמה ☁️
+                </span>
+
+                <!-- User Profile Info -->
+                <div class="bg-slate-100 border border-slate-200 px-3 py-1.5 rounded-xl flex items-center gap-2 text-xs font-bold text-slate-700">
+                    <span>👤</span>
+                    <span id="player-display-name">אורח בחוף</span>
+                    <button id="btn-logout" onclick="triggerSignOut()" class="text-rose-600 hover:text-rose-800 transition-colors hidden" title="יציאה">
+                        (החלף 🚪)
+                    </button>
+                </div>
+
+                <!-- Language Toggle -->
+                <div class="bg-slate-100 p-1 rounded-xl flex items-center gap-1 border border-slate-200">
+                    <button id="btn-cs" onclick="setLanguage('CS')" class="px-3 py-1.5 rounded-lg text-sm font-black transition-all text-slate-600">C#</button>
+                    <button id="btn-java" onclick="setLanguage('Java')" class="px-3 py-1.5 rounded-lg text-sm font-black transition-all bg-amber-500 text-white shadow">Java</button>
+                </div>
+
+                <!-- Score / Coconut Coins -->
+                <div class="bg-amber-100 border border-amber-300 px-4 py-2 rounded-2xl flex items-center gap-2 shadow-sm">
+                    <span class="text-xl">🥥</span>
+                    <span id="coconut-coins" class="font-extrabold text-amber-800 text-lg">100</span>
+                    <span class="text-xs font-bold text-amber-700">קוקוסים</span>
+                </div>
+
+                <!-- Beach Reputation -->
+                <div class="bg-rose-100 border border-rose-200 px-4 py-2 rounded-2xl flex items-center gap-2 shadow-sm">
+                    <span class="text-xl">🔥</span>
+                    <span id="reputation-score" class="font-extrabold text-rose-800 text-lg">10</span>
+                    <span class="text-xs font-bold text-rose-700">מוניטין</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Left Column: Instructions & OOP Code Editor Panel (7 Columns) -->
+        <section class="lg:col-span-7 flex flex-col gap-4">
+            
+            <!-- Level Story & Pedagogical Guide -->
+            <div class="bg-white rounded-3xl p-6 shadow-xl border-t-8 border-sky-500 relative overflow-hidden transition-all duration-300">
+                <div class="absolute top-0 left-0 p-8 opacity-10 text-9xl pointer-events-none">☀️</div>
+                <div class="relative z-10">
+                    <div class="flex justify-between items-center flex-wrap gap-2">
+                        <span id="level-badge" class="bg-sky-100 text-sky-800 text-xs font-extrabold px-3 py-1 rounded-full uppercase">שלב 1: מחלקות ובנאים</span>
+                        <div class="flex gap-1" id="level-stars-indicator">
+                            <span class="text-sky-500">★</span><span class="text-slate-200">★</span><span class="text-slate-200">★</span><span class="text-slate-200">★</span><span class="text-slate-200">★</span><span class="text-slate-200">★</span>
+                        </div>
+                    </div>
+                    <h2 id="level-title" class="text-2xl font-black text-slate-800 mt-2 mb-3">ברוכים הבאים לחוף ה-OOP שלכם!</h2>
+                    <p id="level-description" class="text-slate-600 text-sm leading-relaxed mb-4">
+                        הקיוסק של החוף ריק! עלינו לתכנת את מחלקת הבסיס <code class="bg-slate-100 px-1.5 py-0.5 rounded font-mono text-rose-600">BeachItem</code> שממנה נירש את כל המוצרים בחוף. השלימו את הקוד בצד שמאל כדי ליצור את התבנית הנכונה ולייצר את פריטי החוף הראשונים שלכם!
+                    </p>
+                    <div id="tip-box" class="bg-sky-50 border-r-4 border-sky-500 p-3 rounded-l-xl text-xs text-sky-800 flex items-start gap-2">
+                        <span class="text-base">💡</span>
+                        <div>
+                            <strong class="font-bold block mb-0.5">טיפ מורה לבגרות:</strong>
+                            <span id="tip-text">הקפידו להשתמש במילת המפתח <code class="font-mono bg-blue-100 px-1 rounded">this</code> כדי להבדיל בין הפרמטר של הבנאי לתכונת המחלקה!</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Lesson Card -->
+            <div id="quick-lesson-card" class="bg-gradient-to-r from-amber-50 to-orange-50 border-r-8 border-amber-500 rounded-3xl p-5 shadow-lg relative overflow-hidden transition-all duration-305 mb-4">
+                <div class="flex items-start gap-3">
+                    <span class="text-3xl">🎓</span>
+                    <div class="flex-grow">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-sm font-black text-amber-900" id="quick-lesson-title">שיעור מהיר: שם השיעור</h3>
+                            <span class="text-[10px] bg-amber-200 text-amber-800 font-extrabold px-2 py-0.5 rounded-full" id="quick-lesson-concept">מושג יסוד</span>
+                        </div>
+                        <p id="quick-lesson-text" class="text-slate-700 text-xs leading-relaxed mt-2"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Code Editor Box -->
+            <div class="bg-slate-900 rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-slate-800">
+                <!-- Editor Header -->
+                <div class="bg-slate-800 px-5 py-3 flex items-center justify-between border-b border-slate-700">
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-rose-500 inline-block"></span>
+                        <span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span>
+                        <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>
+                        <span id="file-name" class="text-xs text-slate-400 font-mono mr-2">BeachItem.cs</span>
+                    </div>
+                    <span class="text-xs text-sky-400 font-mono font-bold" id="lang-indicator">C# Syntax Active</span>
+                </div>
+
+                <!-- Code Workspace (Strictly LTR for English Code and comments) -->
+                <div class="p-6 font-mono text-sm text-slate-300 leading-relaxed overflow-x-auto min-h-[350px] bg-slate-950 text-left" dir="ltr">
+                    <pre id="code-block" class="whitespace-pre-wrap select-none"></pre>
+                </div>
+
+                <!-- Action Button / Submit -->
+                <div class="bg-slate-900 p-4 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div class="text-right md:text-left">
+                        <p class="text-xs font-bold text-sky-400" id="editor-hint-title">משימה פתוחה 🧩</p>
+                        <p class="text-[11px] text-slate-400" id="editor-status-text">השלימו את החלק החסר בקוד למעלה על ידי בחירה מהאפשרויות למטה:</p>
+                    </div>
+                    <button id="btn-compile" onclick="compileCode()" class="w-full md:w-auto bg-gradient-to-l from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 text-white font-black px-6 py-3.5 rounded-2xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 flex items-center justify-center gap-2 active:scale-95">
+                        <span>🚀</span>
+                        <span>קמפל והרץ קוד!</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Interactive Choices Area (The Puzzle Input) -->
+            <div class="bg-white rounded-3xl p-5 shadow-lg border border-slate-200">
+                <h3 class="text-sm font-extrabold text-slate-700 mb-3 flex items-center gap-2">
+                    <span class="text-sky-500">⚡</span> בחרו את הקוד הנכון להשלמת המשימה:
+                </h3>
+                <div id="options-container" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <!-- Loaded dynamically by level JS -->
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Right Column: Live Beach Simulator / Leaderboard / Teacher Dashboard Tabbed Panel (5 Columns) -->
+        <section class="lg:col-span-5 flex flex-col gap-4">
+            
+            <!-- Tab Controls -->
+            <div class="bg-white/95 backdrop-blur p-1.5 rounded-2xl shadow-md flex gap-1 border border-slate-200">
+                <button id="tab-beach" onclick="switchRightTab('beach')" class="flex-1 py-2.5 rounded-xl font-black text-xs transition-all bg-amber-500 text-white shadow">
+                    🏖️ סימולטור
+                </button>
+                <button id="tab-leaderboard" onclick="switchRightTab('leaderboard')" class="flex-1 py-2.5 rounded-xl font-black text-xs transition-all text-slate-600 hover:bg-slate-100 flex items-center justify-center gap-1">
+                    🏆 דירוג <span class="bg-rose-500 text-white px-1.5 py-0.2 rounded-full text-[8px] animate-pulse">LIVE</span>
+                </button>
+                <button id="tab-teacher" onclick="switchRightTab('teacher')" class="flex-1 py-2.5 rounded-xl font-black text-xs transition-all text-slate-600 hover:bg-slate-100 flex items-center justify-center gap-1">
+                    🧑‍🏫 מורה
+                </button>
+            </div>
+
+            <!-- Content Area: Beach Simulator -->
+            <div id="right-panel-beach" class="bg-sky-200 rounded-3xl shadow-xl overflow-hidden border-4 border-white flex flex-col h-[580px] relative transition-all duration-300">
+                
+                <!-- Sea Section -->
+                <div class="water-wave h-1/3 relative p-4 flex flex-col justify-between overflow-hidden">
+                    <div class="flex justify-between items-center z-10">
+                        <span class="text-sm text-white font-black tracking-widest bg-black/20 px-2.5 py-1 rounded-full backdrop-blur-sm">ים ה-OOP הכחול</span>
+                        <span class="text-xs bg-white/30 backdrop-blur text-white px-2.5 py-1 rounded-full font-bold" id="wave-speed">גובה גלים: 0.8 מ'</span>
+                    </div>
+                    <!-- Sea Entities -->
+                    <div id="sea-entities" class="flex gap-4 overflow-x-auto py-2 z-10 justify-center items-center relative">
+                        <span class="text-3xl animate-bounce" style="animation-delay: 0.2s" id="swimmer-1">🏊</span>
+                        <span class="text-3xl animate-bounce" style="animation-delay: 0.8s" id="swimmer-2">🏄‍♂️</span>
+                        <span class="text-3xl animate-bounce" style="animation-delay: 1.4s" id="swimmer-3">🛶</span>
+                        <!-- Visual Drone placed once compiled -->
+                        <span id="simulator-drone" class="text-3xl absolute top-0 right-4 hidden animate-[wave_3s_ease-in-out_infinite_alternate]" style="animation-duration: 2s">🛸</span>
+                    </div>
+                </div>
+
+                <!-- Sand Section -->
+                <div class="beach-sand flex-grow p-5 relative flex flex-col justify-between">
+                    <!-- Beach Items Grid -->
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-xs text-amber-900 font-extrabold bg-amber-200/60 px-3 py-1.5 rounded-full">רכיבי OOP פעילים בחוף</span>
+                            <span class="text-xs text-amber-800 font-bold bg-amber-200/40 px-2 py-1 rounded" id="active-count">0/6 מוצרים</span>
+                        </div>
+                        
+                        <!-- Visual Items Container (3x2 grid for 6 items) -->
+                        <div id="beach-grid" class="grid grid-cols-3 gap-3 justify-items-center">
+                            <div class="w-14 h-14 rounded-2xl border-2 border-dashed border-amber-400 flex items-center justify-center text-slate-400 bg-amber-100/50 hover:bg-amber-150 transition-all cursor-pointer group relative" onclick="showSlotInfo(0)">
+                                <span class="group-hover:scale-110 transition-transform text-lg" id="slot-0-emoji">🥤</span>
+                            </div>
+                            <div class="w-14 h-14 rounded-2xl border-2 border-dashed border-amber-300 flex items-center justify-center text-slate-400 bg-amber-100/50 relative group cursor-pointer" onclick="showSlotInfo(1)">
+                                <span class="text-lg" id="slot-1-emoji">🔒</span>
+                            </div>
+                            <div class="w-14 h-14 rounded-2xl border-2 border-dashed border-amber-300 flex items-center justify-center text-slate-400 bg-amber-100/50 relative group cursor-pointer" onclick="showSlotInfo(2)">
+                                <span class="text-lg" id="slot-2-emoji">🔒</span>
+                            </div>
+                            <div class="w-14 h-14 rounded-2xl border-2 border-dashed border-amber-300 flex items-center justify-center text-slate-400 bg-amber-100/50 relative group cursor-pointer" onclick="showSlotInfo(3)">
+                                <span class="text-lg" id="slot-3-emoji">🔒</span>
+                            </div>
+                            <div class="w-14 h-14 rounded-2xl border-2 border-dashed border-amber-300 flex items-center justify-center text-slate-400 bg-amber-100/50 relative group cursor-pointer" onclick="showSlotInfo(4)">
+                                <span class="text-lg" id="slot-4-emoji">🔒</span>
+                            </div>
+                            <div class="w-14 h-14 rounded-2xl border-2 border-dashed border-amber-300 flex items-center justify-center text-slate-400 bg-amber-100/50 relative group cursor-pointer" onclick="showSlotInfo(5)">
+                                <span class="text-lg" id="slot-5-emoji">🔒</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Customer Feedback & Dialog Box -->
+                    <div class="bg-white/95 backdrop-blur rounded-2xl p-3 border border-amber-200 shadow-lg flex items-center gap-3 relative mt-2">
+                        <div id="visitor-bubble-avatar" class="text-3xl transition-transform duration-300 transform">👦</div>
+                        <div class="flex-grow">
+                            <p class="text-xs font-black text-amber-950" id="visitor-name">נופש מרוצה</p>
+                            <p id="visitor-bubble-text" class="text-xs text-slate-600 mt-0.5">"החוף נראה די ריק... הלוואי שנתכנת מוצרי OOP בבנאים וירושה כדי למלא אותו!"</p>
+                        </div>
+                        <!-- Float animation container for popping values -->
+                        <div id="floating-feedback-container" class="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl"></div>
+                    </div>
+                </div>
+
+                <!-- Control Console for Simulator -->
+                <div class="bg-amber-500 p-4 flex items-center justify-between border-t border-amber-600">
+                    <div>
+                        <p class="text-xs text-amber-950 font-black">סימולטור ימי החופש הגדול</p>
+                        <p class="text-xs text-white font-bold" id="day-counter">יום 1 מתוך 30</p>
+                    </div>
+                    <button id="btn-run-day" onclick="runBeachSimulation()" class="bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs px-5 py-3 rounded-xl transition-all shadow-md active:scale-95 flex items-center gap-2">
+                        <span>☀️</span>
+                        <span>הפעל יום עסקים בחוף!</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Content Area: Leaderboard (🏆) -->
+            <div id="right-panel-leaderboard" class="bg-slate-900 text-slate-100 rounded-3xl shadow-xl overflow-hidden border-4 border-slate-800 h-[580px] flex flex-col hidden transition-all duration-300">
+                <div class="bg-slate-850 p-4 border-b border-slate-800 flex justify-between items-center">
+                    <div>
+                        <h3 class="font-black text-sm text-amber-400 flex items-center gap-1.5">
+                            <span>🏆</span> טבלת האלופים של המגמה (רשומים בלבד)
+                        </h3>
+                        <p class="text-[10px] text-slate-400" id="leaderboard-sync-text">נתונים מסונכרנים בזמן אמת</p>
+                    </div>
+                    <span id="live-users-badge" class="text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2.5 py-0.5 rounded-full font-bold">פעיל כעת</span>
+                </div>
+
+                <!-- Leaderboard Rows Container -->
+                <div id="leaderboard-container" class="flex-grow overflow-y-auto p-4 space-y-2.5">
+                    <!-- Filled dynamically from localStorage -->
+                </div>
+
+                <!-- Footer Stats -->
+                <div class="bg-slate-950 p-4 border-t border-slate-800 flex justify-between items-center text-xs text-slate-400">
+                    <span>המיקום הנוכחי שלך במגמה:</span>
+                    <span class="font-extrabold text-amber-400" id="local-rank-preview">לא מדורג (הירשם)</span>
+                </div>
+            </div>
+
+            <!-- Content Area: Teacher Dashboard (🧑‍🏫) -->
+            <div id="right-panel-teacher" class="bg-slate-950 text-slate-100 rounded-3xl shadow-xl overflow-hidden border-4 border-slate-800 h-[580px] flex flex-col hidden transition-all duration-300">
+                <!-- Teacher Login Lock Screen -->
+                <div id="teacher-auth-screen" class="flex-grow flex flex-col items-center justify-center p-6 text-center space-y-4">
+                    <span class="text-5xl">🔐</span>
+                    <h3 class="text-lg font-black text-emerald-400">אזור מורה מוגן</h3>
+                    <p class="text-xs text-slate-400 max-w-xs leading-relaxed">למעקב פדגוגי וצפייה בדוחות הכיתה, אנא הקלד את סיסמת המורה הכיתתית:</p>
+                    <div class="w-full max-w-xs space-y-2 text-right">
+                        <input type="password" id="teacher-auth-pass" placeholder="••••••••" class="w-full bg-slate-900 border-2 border-slate-700 rounded-xl px-4 py-2.5 text-xs text-center font-mono focus:outline-none focus:border-emerald-500 text-white">
+                        <p id="teacher-auth-error" class="text-[10px] text-rose-500 font-bold text-center hidden">סיסמה שגויה! נסה שנית.</p>
+                    </div>
+                    <button onclick="handleTeacherLogin()" class="w-full max-w-xs bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3 rounded-2xl shadow transition-all text-xs flex items-center justify-center gap-1.5 active:scale-95">
+                        <span>🔑</span>
+                        <span>התחבר למערכת מורה</span>
+                    </button>
+                </div>
+
+                <!-- Teacher Dashboard (Initially Hidden) -->
+                <div id="teacher-dashboard-content" class="flex flex-col h-full hidden">
+                    <div class="bg-slate-900 p-4 border-b border-slate-800 flex justify-between items-center">
+                        <div>
+                            <h3 class="font-black text-sm text-emerald-400 flex items-center gap-1.5">
+                                <span>🧑‍🏫</span> ממשק מורה: מעקב פדגוגי כיתתי
+                            </h3>
+                            <p class="text-[10px] text-slate-400 mt-1">מערכת חכמה לניתוח ביצועי התלמידים בהנדסת תוכנה והערכת הבנה פולימורפית.</p>
+                        </div>
+                        <button onclick="handleTeacherLogout()" class="text-[10px] bg-slate-800 hover:bg-slate-750 border border-slate-700 text-rose-450 font-black px-2 py-1 rounded-lg transition-colors">🚪 התנתק</button>
+                    </div>
+
+                    <!-- Main Scrollable Dashboard Content -->
+                    <div class="flex-grow overflow-y-auto p-4 space-y-4">
+                        
+                        <!-- Global Class Analytics -->
+                        <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4">
+                            <h4 class="text-xs font-black text-slate-300 mb-3 flex items-center gap-1.5">
+                                <span>📊</span> תמונת מצב כיתתית (ממוצע)
+                            </h4>
+                            <div class="space-y-2">
+                                <div class="flex justify-between text-[11px] font-bold">
+                                    <span class="text-slate-400">ממוצע שלב נוכחי של הכיתה:</span>
+                                    <span class="text-emerald-400" id="class-avg-level-text">שלב 0</span>
+                                </div>
+                                <div class="w-full bg-slate-850 h-2.5 rounded-full overflow-hidden">
+                                    <div id="class-avg-level-bar" class="bg-gradient-to-l from-emerald-400 to-teal-500 h-2.5 transition-all" style="width: 0%"></div>
+                                </div>
+                            </div>
+
+                            <!-- Concepts Mastery Breakdown -->
+                            <div class="grid grid-cols-2 gap-3 mt-4 text-[10px]">
+                                <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-900">
+                                    <p class="text-slate-400 font-bold">מחלקה ובנאי (this)</p>
+                                    <div class="flex items-center justify-between mt-1">
+                                        <span class="font-black text-amber-400" id="mastery-c1">94% שליטה</span>
+                                        <span class="text-slate-500">רמה 1</span>
+                                    </div>
+                                </div>
+                                <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-900">
+                                    <p class="text-slate-400 font-bold">הכלה וירושה (base)</p>
+                                    <div class="flex items-center justify-between mt-1">
+                                        <span class="font-black text-rose-400" id="mastery-c2">78% שליטה</span>
+                                        <span class="text-slate-500">רמה 2-3</span>
+                                    </div>
+                                </div>
+                                <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-900">
+                                    <p class="text-slate-400 font-bold">פולימורפיזם ודריסה</p>
+                                    <div class="flex items-center justify-between mt-1">
+                                        <span class="font-black text-purple-400" id="mastery-c3">62% שליטה</span>
+                                        <span class="text-slate-500">רמה 4-5</span>
+                                    </div>
+                                </div>
+                                <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-900">
+                                    <p class="text-slate-400 font-bold">ממשקים (Interface)</p>
+                                    <div class="flex items-center justify-between mt-1">
+                                        <span class="font-black text-sky-400" id="mastery-c4">45% שליטה</span>
+                                        <span class="text-slate-500">רמה 6</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Students List with detailed insights -->
+                        <div class="space-y-2">
+                            <h4 class="text-xs font-black text-slate-300 flex items-center justify-between">
+                                <span>👥</span> דוחות התקדמות אישיים
+                                <span class="text-[10px] text-slate-500" id="teacher-students-count">0 תלמידים רשומים</span>
+                            </h4>
+                            
+                            <!-- Dynamic Students Container -->
+                            <div id="teacher-students-list" class="space-y-2">
+                                <!-- Filled dynamically from localStorage DB -->
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Active Student Detail Panel (Dynamic Popup inside card) -->
+                    <div id="student-detail-panel" class="absolute inset-x-0 bottom-0 bg-slate-900 border-t border-slate-800 p-5 rounded-t-3xl shadow-2xl transition-all transform translate-y-full hidden z-25">
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <h5 class="text-sm font-black text-emerald-400" id="sd-name">ישראל ישראלי</h5>
+                                <p class="text-[10px] text-slate-400" id="sd-meta">סטטוס: שלב 2 | 2 מוצרים בחוף</p>
+                            </div>
+                            <button onclick="closeStudentDetails()" class="text-slate-400 hover:text-white text-xs bg-slate-850 hover:bg-slate-800 w-6 h-6 rounded-full flex items-center justify-center">✕</button>
+                        </div>
+
+                        <!-- Strengths and Weaknesses Analyzed locally -->
+                        <div class="space-y-2 text-xs">
+                            <div class="bg-emerald-500/10 border border-emerald-500/20 p-2.5 rounded-xl">
+                                <strong class="text-emerald-400 flex items-center gap-1">🟢 נקודות חוזקה:</strong>
+                                <p class="text-slate-300 mt-1 text-[11px]" id="sd-strengths">מראה הבנה נכונה של כמסה, שימוש תקין ב-this לאתחול שדות המחלקה הפנימיים.</p>
+                            </div>
+                            <div class="bg-rose-500/10 border border-rose-500/20 p-2.5 rounded-xl">
+                                <strong class="text-rose-400 flex items-center gap-1">🔴 נושאים לחיזוק ותרגול:</strong>
+                                <p class="text-slate-300 mt-1 text-[11px]" id="sd-weaknesses">נדרש חיזוק בהבנת בנאי משני המפעיל את בנאי האב ופנייה נכונה לתכונות protected.</p>
+                            </div>
+                            <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-850">
+                                <strong class="text-amber-400 flex items-center gap-1">💡 המלצה פדגוגית עבורך:</strong>
+                                <p class="text-slate-300 mt-1 text-[11px]" id="sd-recommendation">תנו לתלמיד תרגיל כתיבה עצמאי קטן המממש ירושה (למשל, מחלקת מלבן ומחלקת תיבה יורשת).</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer Stats -->
+                    <div class="bg-slate-950 p-4 border-t border-slate-800 flex justify-between items-center text-xs">
+                        <span class="text-slate-400">סטטוס כיתה:</span>
+                        <span class="font-extrabold text-emerald-400">נתונים פדגוגיים פעילים 📊</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feedback Modal & Explanation Panel -->
+            <div id="feedback-panel" class="bg-white rounded-3xl p-5 shadow-xl border-t-4 border-emerald-500 transition-all duration-300 hidden">
+                <div class="flex items-start gap-3">
+                    <span id="feedback-icon" class="text-3xl">🎉</span>
+                    <div class="flex-grow">
+                        <h4 id="feedback-title" class="text-base font-black text-slate-800">כל הכבוד! קומפילציה עברה בהצלחה!</h4>
+                        <p id="feedback-explanation" class="text-xs text-slate-600 mt-1 leading-relaxed">
+                            הבנאי נוצר בצורה מעולה. תכונות הפריט אותחלו כראוי וקוד ה-this עשה את עבודתו. כעת נוצר לכם הפריט הראשון בחוף!
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Welcome, Registration & Login Dynamic Modal -->
+    <div id="nickname-modal" class="fixed inset-0 bg-slate-900/85 backdrop-blur-md flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border-4 border-amber-400 relative">
+            <!-- Modal Tab Navigation -->
+            <div class="flex border-b border-slate-100 pb-3 mb-4 gap-2">
+                <button id="auth-tab-login" onclick="toggleAuthTab('login')" class="flex-1 py-2 rounded-xl text-xs font-black transition-all bg-amber-500 text-white shadow">התחברות כיתתית</button>
+                <button id="auth-tab-register" onclick="toggleAuthTab('register')" class="flex-1 py-2 rounded-xl text-xs font-black transition-all text-slate-600 hover:bg-slate-50">הרשמה חדשה</button>
+                <button id="auth-tab-guest" onclick="toggleAuthTab('guest')" class="flex-1 py-2 rounded-xl text-xs font-black transition-all text-slate-600 hover:bg-slate-50">שחק כאורח</button>
+            </div>
+
+            <div class="text-center">
+                <span id="auth-main-emoji" class="text-5xl mb-2 block">🏄‍♂️</span>
+                <h3 id="auth-main-title" class="text-xl font-black text-slate-800 mb-1">התחברו לחוף ה-OOP</h3>
+                <p id="auth-main-subtitle" class="text-slate-500 text-xs font-bold mb-4">צברו קוקוסים, בנו קיוסק והתחרו מול תלמידי המגמה!</p>
+                
+                <!-- Dynamic Error Notification -->
+                <div id="auth-error-container" class="bg-rose-50 border-r-4 border-rose-500 p-3 rounded-l-xl text-right text-rose-800 text-xs mb-3 font-bold hidden">
+                    <p id="auth-error-text">שגיאה ברישום</p>
+                </div>
+
+                <!-- LOGIN FORM -->
+                <div id="form-login" class="space-y-3 text-right">
+                    <div>
+                        <label class="block text-xs font-black text-slate-600 mb-1">שם משתמש / אימייל:</label>
+                        <input type="text" id="login-username" placeholder="לדוגמה: amit_c_sharp" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-amber-500 text-left font-mono font-bold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-black text-slate-600 mb-1">סיסמה כיתתית:</label>
+                        <input type="password" id="login-password" placeholder="••••••••" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-amber-500 text-left font-mono">
+                    </div>
+                    <button onclick="handleLogin()" class="w-full mt-2 bg-amber-500 hover:bg-amber-600 text-white font-black py-3 rounded-2xl shadow transition-all text-xs flex items-center justify-center gap-1.5">
+                        <span>🔑</span>
+                        <span>התחבר והתחל לבנות</span>
+                    </button>
+                </div>
+
+                <!-- REGISTER FORM -->
+                <div id="form-register" class="space-y-3 text-right hidden">
+                    <div>
+                        <label class="block text-xs font-black text-slate-600 mb-1">שם מלא / כינוי לכיתה:</label>
+                        <input type="text" id="register-name" placeholder="לדוגמה: נועה לוי יא1" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-amber-500 text-right font-bold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-black text-slate-600 mb-1">שם משתמש ייחודי (באנגלית):</label>
+                        <input type="text" id="register-username" placeholder="noa_loop_queen" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-amber-500 text-left font-mono font-bold">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-black text-slate-600 mb-1">בחרו סיסמה (לפחות 4 תווים):</label>
+                        <input type="password" id="register-password" placeholder="••••" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-amber-500 text-left font-mono">
+                    </div>
+                    <button onclick="handleRegister()" class="w-full mt-2 bg-emerald-500 hover:bg-emerald-600 text-white font-black py-3 rounded-2xl shadow transition-all text-xs flex items-center justify-center gap-1.5">
+                        <span>📝</span>
+                        <span>צור חשבון והצטרף למגמה</span>
+                    </button>
+                </div>
+
+                <!-- GUEST FORM -->
+                <div id="form-guest" class="space-y-3 text-right hidden">
+                    <p class="text-xs text-slate-500 mb-3 text-center">כניסה כאורח היא מיידית ולא דורשת סיסמה, אך לא תשתלב בטבלת הדירוג החיה של המורה.</p>
+                    <div>
+                        <label class="block text-xs font-black text-slate-600 mb-1">כינוי זמני:</label>
+                        <input type="text" id="guest-name" placeholder="אורח בחוף" class="w-full bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-amber-500 text-right font-bold">
+                    </div>
+                    <button onclick="handleGuestLogin()" class="w-full mt-2 bg-sky-500 hover:bg-sky-600 text-white font-black py-3 rounded-2xl shadow transition-all text-xs flex items-center justify-center gap-1.5">
+                        <span>🏖️</span>
+                        <span>כנס ישירות לחוף</span>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- UI Alert System (Avoids native alerts) -->
+    <div id="custom-alert-box" class="fixed bottom-5 left-5 bg-slate-900 text-white border border-slate-800 rounded-2xl p-4 shadow-2xl z-50 max-w-sm hidden transition-all duration-300">
+        <div class="flex items-start gap-3">
+            <span id="custom-alert-emoji" class="text-2xl">💡</span>
+            <div>
+                <h5 class="text-xs font-black text-amber-400" id="custom-alert-title">הודעת מערכת</h5>
+                <p class="text-xs text-slate-300 mt-1" id="custom-alert-text"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Background Decoration -->
+    <footer class="bg-slate-900 text-slate-500 text-center py-4 text-xs mt-auto">
+        <p>© King of the Beach: OOP Gamified Edition. נוצר עבור תלמידי תיכון ללימודי הנדסת תוכנה ומדעי המחשב.</p>
+    </footer>
+
+    <!-- Game Engine & Pedagogical JavaScript Logic -->
+    <script src="levels.js"></script>
+    <script>
+        // 1. Initial State Definition
+        let gameState = {
+            currentLanguage: 'Java', // Java or CS
+            currentLevel: 1,       // 1 to 30
+            coins: 100,
+            reputation: 10,
+            simulatedDay: 1,
+            playerDisplayName: 'אורח בחוף',
+            username: 'guest',
+            selectedOptionId: null,
+            activeBeachItems: [],  // unlocked unit numbers (1 to 6)
+            completedLevels: [],   // list of completed level numbers (1 to 30)
+            slotUnlocked: [true, false, false, false, false, false], // unit unlocks
+            isTeacherAuthorized: false,
+            beachClosed: false,
+            waveHeight: 0.8
+        };
+
+        // Helper functions for 30 level management
+        function getLevelUnit(levelNum) {
+            if (levelNum >= 1 && levelNum <= 4) return 1;
+            if (levelNum >= 5 && levelNum <= 8) return 2;
+            if (levelNum >= 9 && levelNum <= 14) return 3;
+            if (levelNum >= 15 && levelNum <= 16) return 4;
+            if (levelNum >= 17 && levelNum <= 26) return 5;
+            if (levelNum >= 27 && levelNum <= 30) return 6;
+            return 1;
+        }
+
+        function getLevelsOfUnit(unitNum) {
+            if (unitNum === 1) return [1, 2, 3, 4];
+            if (unitNum === 2) return [5, 6, 7, 8];
+            if (unitNum === 3) return [9, 10, 11, 12, 13, 14];
+            if (unitNum === 4) return [15, 16];
+            if (unitNum === 5) return [17, 18, 19, 20, 21, 22, 23, 24, 25, 26];
+            if (unitNum === 6) return [27, 28, 29, 30];
+            return [];
+        }
+
+        function isUnitCompleted(unitNum) {
+            const levels = getLevelsOfUnit(unitNum);
+            return levels.every(lvl => gameState.completedLevels.includes(lvl));
+        }
+
+        function getFirstLevelOfUnit(unitNum) {
+            if (unitNum === 1) return 1;
+            if (unitNum === 2) return 5;
+            if (unitNum === 3) return 9;
+            if (unitNum === 4) return 15;
+            if (unitNum === 5) return 17;
+            if (unitNum === 6) return 27;
+            return 1;
+        }
+
+        function getFirstUncompletedLevelOfUnit(unitNum) {
+            const levels = getLevelsOfUnit(unitNum);
+            for (let lvl of levels) {
+                if (!gameState.completedLevels.includes(lvl)) {
+                    return lvl;
+                }
+            }
+            return levels[levels.length - 1]; // fallback to last if all done
+        }
+
+        // 2. Levels Specifications (Perfect pedagogical curriculum)
+        // 3. UI and Tab Controls
+        function switchRightTab(tabId) {
+            // Hide all panels
+            document.getElementById('right-panel-beach').classList.add('hidden');
+            document.getElementById('right-panel-leaderboard').classList.add('hidden');
+            document.getElementById('right-panel-teacher').classList.add('hidden');
+
+            // Reset tab styles
+            const tabs = ['beach', 'leaderboard', 'teacher'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                if (btn) {
+                    btn.className = "flex-1 py-2.5 rounded-xl font-black text-xs transition-all text-slate-600 hover:bg-slate-100 flex items-center justify-center gap-1";
+                }
+            });
+
+            // Show active panel
+            document.getElementById(`right-panel-${tabId}`).classList.remove('hidden');
+            document.getElementById(`tab-${tabId}`).className = "flex-1 py-2.5 rounded-xl font-black text-xs transition-all bg-amber-500 text-white shadow";
+
+            // If teacher tab is active and teacher is authorized, render stats
+            if (tabId === 'teacher') {
+                if (gameState.isTeacherAuthorized) {
+                    document.getElementById('teacher-auth-screen').classList.add('hidden');
+                    document.getElementById('teacher-dashboard-content').classList.remove('hidden');
+                    renderTeacherDashboard();
+                } else {
+                    document.getElementById('teacher-dashboard-content').classList.add('hidden');
+                    document.getElementById('teacher-auth-screen').classList.remove('hidden');
+                }
+            }
+        }
+
+        // 4. Multi-turn Auth Simulation (In-memory mock sync)
+        function toggleAuthTab(tabName) {
+            const tabs = ['login', 'register', 'guest'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`auth-tab-${t}`);
+                const form = document.getElementById(`form-${t}`);
+                if (btn && form) {
+                    if (t === tabName) {
+                        btn.className = "flex-1 py-2 rounded-xl text-xs font-black transition-all bg-amber-500 text-white shadow";
+                        form.classList.remove('hidden');
+                    } else {
+                        btn.className = "flex-1 py-2 rounded-xl text-xs font-black transition-all text-slate-600 hover:bg-slate-55";
+                        form.classList.add('hidden');
+                    }
+                }
+            });
+
+            // Visual adjustments
+            const emoji = document.getElementById('auth-main-emoji');
+            const title = document.getElementById('auth-main-title');
+            if (tabName === 'login') {
+                emoji.innerText = '🏄‍♂️';
+                title.innerText = 'התחברו לחוף ה-OOP';
+            } else if (tabName === 'register') {
+                emoji.innerText = '📝';
+                title.innerText = 'הרשמה למגמת הנדסת תוכנה';
+            } else {
+                emoji.innerText = '🏖️';
+                title.innerText = 'כניסה מהירה כאורח';
+            }
+        }
+
+        function triggerSignOut() {
+            gameState.playerDisplayName = 'אורח בחוף';
+            gameState.username = 'guest';
+            document.getElementById('player-display-name').innerText = 'אורח בחוף';
+            document.getElementById('btn-logout').classList.add('hidden');
+            document.getElementById('nickname-modal').classList.remove('hidden');
+            showNotification('🚪 התנתקת בהצלחה. להתראות בקיץ!', '💡');
+        }
+
+        function handleLogin() {
+            const userVal = document.getElementById('login-username').value.trim();
+            const passVal = document.getElementById('login-password').value;
+
+            if (!userVal || !passVal) {
+                showAuthError("אנא מלאו את כל השדות.");
+                return;
+            }
+            if (passVal.length < 4) {
+                showAuthError("הסיסמה צריכה להכיל לפחות 4 תווים.");
+                return;
+            }
+
+            const usernameKey = userVal.toLowerCase();
+            let db = JSON.parse(localStorage.getItem('registered_students') || '[]');
+            let userObj = db.find(u => u.username === usernameKey);
+            
+            if (!userObj) {
+                showAuthError("משתמש לא קיים במערכת. אנא הרשמו בלשונית ההרשמה.");
+                return;
+            }
+
+            gameState.playerDisplayName = userObj.name;
+            gameState.username = userObj.username;
+            gameState.coins = userObj.coins || 100;
+            gameState.reputation = userObj.reputation || 10;
+            gameState.currentLevel = userObj.level || 1;
+            gameState.completedLevels = userObj.completedLevels || [];
+            gameState.activeBeachItems = userObj.activeBeachItems || [];
+            
+            // Sync slot unlocked array based on unit completions
+            gameState.slotUnlocked = [
+                true,
+                isUnitCompleted(1),
+                isUnitCompleted(2),
+                isUnitCompleted(3),
+                isUnitCompleted(4),
+                isUnitCompleted(5)
+            ];
+
+            document.getElementById('player-display-name').innerText = userObj.name;
+            document.getElementById('btn-logout').classList.remove('hidden');
+            document.getElementById('nickname-modal').classList.add('hidden');
+            hideAuthError();
+            showNotification(`ברוך שובך, ${userObj.name}!`, '🔑');
+            initGame();
+        }
+
+        function handleRegister() {
+            const nameVal = document.getElementById('register-name').value.trim();
+            const userVal = document.getElementById('register-username').value.trim();
+            const passVal = document.getElementById('register-password').value;
+
+            if (!nameVal || !userVal || !passVal) {
+                showAuthError("אנא מלאו את כל שדות ההרשמה.");
+                return;
+            }
+            if (passVal.length < 4) {
+                showAuthError("הסיסמה צריכה להכיל לפחות 4 תווים.");
+                return;
+            }
+
+            gameState.playerDisplayName = nameVal;
+            gameState.username = userVal.toLowerCase();
+            gameState.coins = 100;
+            gameState.reputation = 10;
+            gameState.currentLevel = 1;
+            gameState.completedLevels = [];
+            gameState.activeBeachItems = [];
+            gameState.slotUnlocked = [true, false, false, false, false, false];
+
+            document.getElementById('player-display-name').innerText = nameVal;
+            document.getElementById('btn-logout').classList.remove('hidden');
+            document.getElementById('nickname-modal').classList.add('hidden');
+            hideAuthError();
+
+            // Save to localStorage DB (Simulating Firebase)
+            let db = JSON.parse(localStorage.getItem('registered_students') || '[]');
+            let userObj = db.find(u => u.username === gameState.username);
+            if (!userObj) {
+                userObj = {
+                    name: nameVal,
+                    username: gameState.username,
+                    score: 150, // coins + reputation * 5
+                    level: 1,
+                    completedLevels: [],
+                    avatar: '🎓',
+                    coins: 100,
+                    reputation: 10,
+                    activeBeachItems: []
+                };
+                db.push(userObj);
+            }
+            localStorage.setItem('registered_students', JSON.stringify(db));
+
+            showNotification(`ברוכים הבאים למגמת הקיץ, ${nameVal}!`, '🎉');
+            initGame();
+        }
+
+        function handleGuestLogin() {
+            const guestVal = document.getElementById('guest-name').value.trim() || 'אורח בחוף';
+            gameState.playerDisplayName = guestVal;
+            gameState.username = 'guest';
+            gameState.coins = 100;
+            gameState.reputation = 10;
+            gameState.currentLevel = 1;
+            gameState.completedLevels = [];
+            gameState.activeBeachItems = [];
+            gameState.slotUnlocked = [true, false, false, false, false, false];
+
+            document.getElementById('player-display-name').innerText = guestVal;
+            document.getElementById('btn-logout').classList.remove('hidden');
+            document.getElementById('nickname-modal').classList.add('hidden');
+            hideAuthError();
+            showNotification(`נכנסת כשחקן אורח: ${guestVal}`, '🏖️');
+            initGame();
+        }
+
+        function savePlayerProgress() {
+            if (gameState.username === 'guest') return;
+            let db = JSON.parse(localStorage.getItem('registered_students') || '[]');
+            let userObj = db.find(u => u.username === gameState.username);
+            if (userObj) {
+                userObj.coins = gameState.coins;
+                userObj.reputation = gameState.reputation;
+                userObj.level = gameState.currentLevel;
+                userObj.completedLevels = gameState.completedLevels;
+                userObj.activeBeachItems = gameState.activeBeachItems;
+                userObj.score = gameState.coins + (gameState.reputation * 5);
+                localStorage.setItem('registered_students', JSON.stringify(db));
+            }
+        }
+
+        function showAuthError(msg) {
+            const errBox = document.getElementById('auth-error-container');
+            const errTxt = document.getElementById('auth-error-text');
+            errTxt.innerText = msg;
+            errBox.classList.remove('hidden');
+        }
+
+        function hideAuthError() {
+            document.getElementById('auth-error-container').classList.add('hidden');
+        }
+
+        // 5. Game Core Mechanics & Code Loading
+        function initGame() {
+            loadLevel(gameState.currentLevel);
+            renderLeaderboard();
+            renderTeacherDashboard();
+            updateBeachVisuals();
+            updateStatsUI();
+        }
+
+        function loadLevel(lvlId) {
+            gameState.currentLevel = lvlId;
+            gameState.selectedOptionId = null;
+            const lvl = levelsData[lvlId];
+            
+            // Update Text
+            document.getElementById('level-badge').innerText = lvl.badge;
+            document.getElementById('level-title').innerText = lvl.title;
+            document.getElementById('level-description').innerHTML = lvl.description;
+            document.getElementById('tip-text').innerHTML = lvl.tip;
+            document.getElementById('file-name').innerText = lvl.fileName[gameState.currentLanguage];
+            document.getElementById('lang-indicator').innerText = `${gameState.currentLanguage} Syntax Active`;
+            
+            // Update Quick Lesson Card
+            document.getElementById('quick-lesson-title').innerText = `🎓 שיעור מהיר: ${lvl.lessonTitle}`;
+            document.getElementById('quick-lesson-text').innerHTML = lvl.lessonText;
+            document.getElementById('quick-lesson-concept').innerText = lvl.badge;
+
+            // Render Code Block with highlighted slot placeholder
+            renderCodeWorkspace(lvl);
+
+            // Render Options
+            renderOptions(lvl);
+
+            // Sub-Level Pagination Selector
+            const starsContainer = document.getElementById('level-stars-indicator');
+            starsContainer.innerHTML = '';
+            const currentUnit = getLevelUnit(lvlId);
+            const unitLevels = getLevelsOfUnit(currentUnit);
+            
+            unitLevels.forEach(lvlNum => {
+                const pill = document.createElement('button');
+                const isCompleted = gameState.completedLevels.includes(lvlNum);
+                const isActive = lvlNum === lvlId;
+                const subLvlStr = levelsData[lvlNum].subLevelName;
+                
+                pill.className = `px-2.5 py-1 text-xs font-black rounded-lg transition-all ${
+                    isActive 
+                        ? "bg-sky-600 text-white shadow-md scale-105" 
+                        : isCompleted 
+                            ? "bg-emerald-100 text-emerald-800 border border-emerald-300" 
+                            : "bg-slate-100 text-slate-400 border border-slate-200 hover:bg-slate-200"
+                }`;
+                pill.innerText = subLvlStr;
+                pill.title = levelsData[lvlNum].title;
+                
+                const isSelectable = isCompleted || isActive || lvlNum === getFirstUncompletedLevelOfUnit(currentUnit);
+                if (isSelectable) {
+                    pill.onclick = () => loadLevel(lvlNum);
+                } else {
+                    pill.disabled = true;
+                    pill.className += " cursor-not-allowed opacity-50";
+                }
+                starsContainer.appendChild(pill);
+            });
+
+            // Hide previous compiler feedback
+            document.getElementById('feedback-panel').classList.add('hidden');
+        }
+
+        function renderCodeWorkspace(lvl) {
+            const codeBlock = document.getElementById('code-block');
+            let rawCode = lvl.codeTemplate[gameState.currentLanguage];
+            
+            let highlighted = rawCode
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;");
+
+            const slotHtml = `<span id="code-slot" class="bg-sky-500/20 border-2 border-dashed border-sky-400 px-4 py-1.5 rounded text-sky-300 font-bold inline-block my-1 animate-pulse select-all tracking-wide text-xs">&lt; בחרו קוד מהאפשרויות למטה &gt;</span>`;
+            highlighted = highlighted.replace("[SLOT]", slotHtml);
+
+            codeBlock.innerHTML = highlighted;
+        }
+
+        function renderOptions(lvl) {
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+
+            lvl.options.forEach(opt => {
+                const card = document.createElement('div');
+                card.id = `card-${opt.id}`;
+                card.onclick = () => selectOption(opt.id);
+                card.className = "border-2 border-slate-200 hover:border-sky-400 hover:bg-sky-50/50 p-4 rounded-2xl cursor-pointer transition-all duration-200 flex flex-col justify-between h-full";
+
+                const codePre = document.createElement('pre');
+                codePre.className = "font-mono text-xs text-left bg-slate-50 border border-slate-100 p-2.5 rounded-xl overflow-x-auto text-slate-800 my-1 font-bold";
+                codePre.dir = "ltr";
+                codePre.innerText = opt[gameState.currentLanguage] || opt.CS; // fallback
+
+                const checkSymbol = document.createElement('span');
+                checkSymbol.id = `badge-${opt.id}`;
+                checkSymbol.className = "text-[10px] bg-slate-100 text-slate-500 font-black px-2 py-1 rounded-full w-max mt-2";
+                checkSymbol.innerText = "בחרו באפשרות זו ⚡";
+
+                card.appendChild(codePre);
+                card.appendChild(checkSymbol);
+                container.appendChild(card);
+            });
+        }
+
+        function selectOption(optId) {
+            gameState.selectedOptionId = optId;
+            const lvl = levelsData[gameState.currentLevel];
+            const opt = lvl.options.find(o => o.id === optId);
+
+            // Visual highlight of selected card
+            lvl.options.forEach(o => {
+                const card = document.getElementById(`card-${o.id}`);
+                const badge = document.getElementById(`badge-${o.id}`);
+                if (card && badge) {
+                    if (o.id === optId) {
+                        card.className = "border-2 border-sky-500 bg-sky-50/80 p-4 rounded-2xl cursor-pointer transition-all duration-200 flex flex-col justify-between h-full shadow-md";
+                        badge.className = "text-[10px] bg-sky-500 text-white font-black px-2.5 py-1 rounded-full w-max mt-2 shadow-sm";
+                        badge.innerText = "נבחר בהצלחה ✔️";
+                    } else {
+                        card.className = "border-2 border-slate-200 hover:border-sky-300 p-4 rounded-2xl cursor-pointer transition-all duration-200 flex flex-col justify-between h-full";
+                        badge.className = "text-[10px] bg-slate-100 text-slate-500 font-black px-2 py-1 rounded-full w-max mt-2";
+                        badge.innerText = "לחצו לבחירה ⚡";
+                    }
+                }
+            });
+
+            // Update placeholder in editor in real time!
+            const codeSlot = document.getElementById('code-slot');
+            if (codeSlot) {
+                codeSlot.innerText = opt[gameState.currentLanguage];
+                codeSlot.className = "bg-sky-100 text-sky-900 border-2 border-solid border-sky-500 px-4 py-1.5 rounded font-black inline-block my-1 select-all tracking-wide text-xs";
+            }
+        }
+
+        function setLanguage(lang) {
+            gameState.currentLanguage = lang;
+            
+            const btnCS = document.getElementById('btn-cs');
+            const btnJava = document.getElementById('btn-java');
+            
+            if (lang === 'CS') {
+                btnCS.className = "px-3 py-1.5 rounded-lg text-sm font-black transition-all bg-amber-500 text-white shadow";
+                btnJava.className = "px-3 py-1.5 rounded-lg text-sm font-black transition-all text-slate-600 hover:bg-slate-200";
+            } else {
+                btnJava.className = "px-3 py-1.5 rounded-lg text-sm font-black transition-all bg-amber-500 text-white shadow";
+                btnCS.className = "px-3 py-1.5 rounded-lg text-sm font-black transition-all text-slate-600 hover:bg-slate-200";
+            }
+
+            loadLevel(gameState.currentLevel);
+        }
+
+        // 6. Compilation Simulation and Progressive Success Dialogs
+        function compileCode() {
+            if (!gameState.selectedOptionId) {
+                showNotification("אנא בחרו קוד מהאפשרויות למטה לפני ההרצה!", "⚠️");
+                return;
+            }
+
+            const lvl = levelsData[gameState.currentLevel];
+            const selectedOpt = lvl.options.find(o => o.id === gameState.selectedOptionId);
+            
+            const feedbackPanel = document.getElementById('feedback-panel');
+            const feedbackIcon = document.getElementById('feedback-icon');
+            const feedbackTitle = document.getElementById('feedback-title');
+            const feedbackExplanation = document.getElementById('feedback-explanation');
+
+            feedbackPanel.classList.remove('hidden');
+
+            const teachers = {
+                correct: [
+                    { avatar: "🦀", name: "מר לופ", msg: "קוד מדהים! ישר כמו קו החוף. שמרת על חוקי התחביר בצורה מעולה!" },
+                    { avatar: "🤖", name: "ג'יגה-בוי", msg: "הקומפילציה הושלמה. המודל התחבר לזיכרון ה-Heap והתחיל לרוץ!" }
+                ],
+                incorrect: [
+                    { avatar: "🦀", name: "מר לופ", msg: "אופס! נראה שיש כאן שגיאת תחביר. אל תיתן לבאגים לעקוץ אותך כמו מדוזה בים!" },
+                    { avatar: "🤖", name: "ג'יגה-בוי", msg: "שגיאה במערכת! השמה לא נכונה או קריאה לא תקינה לבנאי האב. נסו שנית." }
+                ]
+            };
+
+            const tRandom = Math.floor(Math.random() * 2);
+
+            if (selectedOpt.isCorrect) {
+                // Success
+                const t = teachers.correct[tRandom];
+                feedbackIcon.innerText = t.avatar;
+                feedbackTitle.innerText = `${t.name}: קומפילציה מושלמת! הקוד רץ בהצלחה!`;
+                feedbackExplanation.innerHTML = `
+                    <div class="bg-sky-50 p-3 rounded-2xl border border-sky-200 text-sky-905 text-xs mb-3 font-semibold text-right">
+                        "${t.msg}"
+                    </div>
+                    <strong>הסבר פדגוגי לבגרות:</strong> ${selectedOpt.explanation} <br><br>
+                    המוצר <strong>${lvl.itemName} ${lvl.itemEmoji}</strong> נוצר בהצלחה ופעיל כעת בחוף! מוניטין החוף שלכם עלה.
+                `;
+                
+                // State updates
+                if (!gameState.completedLevels.includes(gameState.currentLevel)) {
+                    gameState.completedLevels.push(gameState.currentLevel);
+                    gameState.reputation += 15;
+                    gameState.coins += 50;
+                }
+
+                // Check and update completed units for simulator placing
+                const currentUnit = getLevelUnit(gameState.currentLevel);
+                if (isUnitCompleted(currentUnit)) {
+                    if (!gameState.activeBeachItems.includes(currentUnit)) {
+                        gameState.activeBeachItems.push(currentUnit);
+                        showNotification(`מזל טוב! השלמתם את כל שלבי יחידה ${currentUnit} והמוצר נוסף לסימולטור החוף!`, "🎉");
+                    }
+                }
+
+                // Sync slot unlocked array based on unit completions
+                gameState.slotUnlocked = [
+                    true,
+                    isUnitCompleted(1),
+                    isUnitCompleted(2),
+                    isUnitCompleted(3),
+                    isUnitCompleted(4),
+                    isUnitCompleted(5)
+                ];
+
+                savePlayerProgress();
+                updateStatsUI();
+                updateBeachVisuals();
+                triggerFloatingText(lvl.itemEmoji + " מוצר חדש!", "floating-feedback-container");
+
+                // Next level navigation button
+                if (gameState.currentLevel < 30) {
+                    const nextBtnId = "btn-next-level-action";
+                    const existingBtn = document.getElementById(nextBtnId);
+                    if (existingBtn) existingBtn.remove();
+
+                    const nextBtn = document.createElement('button');
+                    nextBtn.id = nextBtnId;
+                    nextBtn.className = "mt-3 bg-slate-900 hover:bg-slate-800 text-white text-xs font-black px-4 py-2.5 rounded-xl transition-all flex items-center gap-1 active:scale-95";
+                    nextBtn.innerHTML = `<span>התקדם לשלב הבא (${levelsData[gameState.currentLevel + 1].subLevelName})</span> ➡️`;
+                    nextBtn.onclick = () => {
+                        loadLevel(gameState.currentLevel + 1);
+                        nextBtn.remove();
+                    };
+                    feedbackExplanation.appendChild(nextBtn);
+                } else {
+                    feedbackTitle.innerText = "🏆 אלוף ה-OOP של החוף!";
+                    feedbackExplanation.innerHTML += `<br><br><span class='text-emerald-600 font-extrabold text-xs block bg-emerald-50 p-3 rounded-xl border border-emerald-200 mt-2'>מזל טוב! סיימת את כל 30 שלבי הקיץ בהצלחה יתרה. הראית שליטה מעמיקה במחלקות, הכלה, ירושה, בנאים יורשים, פולימורפיזם וממשקים!</span>`;
+                }
+
+            } else {
+                // Failed compilation
+                const t = teachers.incorrect[tRandom];
+                feedbackIcon.innerText = t.avatar;
+                feedbackTitle.innerText = `${t.name}: שגיאת קומפילציה (Syntax Error)`;
+                feedbackExplanation.innerHTML = `
+                    <div class="bg-rose-50 p-3 rounded-2xl border border-rose-200 text-rose-900 text-xs mb-3 font-semibold text-right">
+                        "${t.msg}"
+                    </div>
+                    <strong>הסבר פדגוגי מורה:</strong> ${selectedOpt.explanation} <br><br>
+                    <span class='text-rose-600 font-bold'>רמז קיצי:</span> קראו שוב את הטיפ המורחב בקופסה הכחולה למעלה. נסו שוב!
+                `;
+                
+                gameState.reputation = Math.max(0, gameState.reputation - 5);
+                updateStatsUI();
+            }
+
+            feedbackPanel.scrollIntoView({ behavior: 'smooth' });
+            renderLeaderboard();
+            renderTeacherDashboard();
+        }
+
+        // 7. Dynamic Sandbox Simulation (Beach sandbox simulation runner)
+        function runBeachSimulation() {
+            if (gameState.activeBeachItems.length === 0) {
+                updateVisitorBubble("👦", "נופש מרוצה", "החוף ריק לגמרי! קודם קמפלו מוצר כלשהו כדי שיהיה לנו מה לקנות.");
+                return;
+            }
+
+            // Simple Day Progression
+            gameState.simulatedDay++;
+            if (gameState.simulatedDay > 30) {
+                gameState.simulatedDay = 1; // loop
+            }
+            document.getElementById('day-counter').innerText = `יום ${gameState.simulatedDay} מתוך 30`;
+
+            // Randomize waves
+            const isWavesDangerous = Math.random() > 0.8;
+            gameState.waveHeight = isWavesDangerous ? (Math.random() * 1.5 + 2.5).toFixed(1) : (Math.random() * 1.2 + 0.4).toFixed(1);
+            document.getElementById('wave-speed').innerText = `גובה גלים: ${gameState.waveHeight} מ'`;
+
+            // AI Safety Decision Maker logic (Interface implementation)
+            if (gameState.activeBeachItems.includes(6)) {
+                if (gameState.waveHeight > 2.5) {
+                    gameState.beachClosed = true;
+                    showNotification("🚨 החוף נסגר אוטומטית עקב גלים גבוהים על ידי בקר הבטיחות האוטונומי!", "🚨");
+                } else {
+                    gameState.beachClosed = false;
+                }
+            } else {
+                gameState.beachClosed = false;
+            }
+
+            // Calculate profit based on active item complexity
+            let dailyProfit = 0;
+            let visitorAvatar = "👦";
+            let visitorName = "מתרחץ מזדמן";
+            let visitorMsg = "";
+
+            if (gameState.beachClosed) {
+                visitorAvatar = "👵";
+                visitorName = "נופשת זהירה";
+                visitorMsg = "מזל שבקר הבטיחות האוטונומי סגר את הים! הגלים האלה מסוכנים.";
+                dailyProfit = 10;
+            } else {
+                const scenarios = [
+                    { avatar: "👩", name: "שני מראשון", msg: "איזה יופי של קיוסק חכם! שירות מהיר ויעיל.", lvl: 2, bonus: 20 },
+                    { avatar: "👨", name: "דני המדריך", msg: "החוף הזה מאובטח היטב עם רחפני ההצלה.", lvl: 3, bonus: 30 },
+                    { avatar: "🏄‍♂️", name: "תומר הגולש", msg: "הגלשן הפולימורפי הזה טס על המים!", lvl: 5, bonus: 25 },
+                    { avatar: "👦", name: "יוני הצעיר", msg: "החוף הזה פשוט מדהים! יש פה משקאות קלים ומצילים רובוטיים.", lvl: 1, bonus: 15 }
+                ];
+
+                const activeScenarios = scenarios.filter(s => gameState.activeBeachItems.includes(s.lvl));
+                const activeScenario = activeScenarios[Math.floor(Math.random() * activeScenarios.length)] || scenarios[3];
+                
+                visitorAvatar = activeScenario.avatar;
+                visitorName = activeScenario.name;
+                visitorMsg = activeScenario.msg;
+                dailyProfit = 25 * gameState.activeBeachItems.length + activeScenario.bonus;
+            }
+
+            gameState.coins += dailyProfit;
+            gameState.reputation += 3;
+
+            savePlayerProgress();
+            updateStatsUI();
+            updateVisitorBubble(visitorAvatar, visitorName, `"${visitorMsg}"`);
+            
+            // Pop floaters
+            triggerFloatingText(`+${dailyProfit} 🥥`, "floating-feedback-container");
+            triggerFloatingText(`+3 🔥`, "floating-feedback-container");
+
+            renderLeaderboard();
+            renderTeacherDashboard();
+        }
+
+        function updateVisitorBubble(avatar, name, msg) {
+            document.getElementById('visitor-bubble-avatar').innerText = avatar;
+            document.getElementById('visitor-name').innerText = name;
+            document.getElementById('visitor-bubble-text').innerText = msg;
+
+            const avatarEl = document.getElementById('visitor-bubble-avatar');
+            avatarEl.className = "text-3xl transition-transform duration-300 transform scale-125 rotate-6";
+            setTimeout(() => {
+                avatarEl.className = "text-3xl transition-transform duration-300 transform scale-100 rotate-0";
+            }, 300);
+        }
+
+        function updateStatsUI() {
+            document.getElementById('coconut-coins').innerText = gameState.coins;
+            document.getElementById('reputation-score').innerText = gameState.reputation;
+        }
+
+        function updateBeachVisuals() {
+            const emojis = { 1: "🥤", 2: "🏪", 3: "🚁", 4: "👁️", 5: "🏄", 6: "🚨" };
+            const names = { 1: "BeachItem", 2: "SmartBeachKiosk", 3: "AiLifeguardDrone", 4: "SmartAiDrone", 5: "SmartSurfboard", 6: "AiBeachSafetyController" };
+
+            for (let i = 0; i < 6; i++) {
+                const itemLevelNum = i + 1;
+                const slotEmojiEl = document.getElementById(`slot-${i}-emoji`);
+                const parentDiv = slotEmojiEl.parentNode;
+
+                if (gameState.activeBeachItems.includes(itemLevelNum)) {
+                    // Item unlocked and placed
+                    slotEmojiEl.innerText = emojis[itemLevelNum];
+                    parentDiv.className = "w-14 h-14 rounded-2xl border-2 border-sky-500 bg-white/90 shadow-md flex flex-col items-center justify-center relative group cursor-pointer transition-all hover:scale-105 sparkle-win";
+                    parentDiv.setAttribute("title", `${names[itemLevelNum]} - פעיל`);
+                    
+                    if (itemLevelNum === 3 || itemLevelNum === 4) {
+                        const droneVis = document.getElementById('simulator-drone');
+                        droneVis.innerText = itemLevelNum === 4 ? "👁️" : "🚁";
+                        droneVis.classList.remove('hidden');
+                    }
+                } else if (gameState.slotUnlocked[i]) {
+                    // Slot is ready to be developed
+                    slotEmojiEl.innerText = "➕";
+                    parentDiv.className = "w-14 h-14 rounded-2xl border-2 border-dashed border-sky-400 flex items-center justify-center text-sky-600 bg-sky-100/40 hover:bg-sky-100 transition-all cursor-pointer group";
+                } else {
+                    // Locked
+                    slotEmojiEl.innerText = "🔒";
+                    parentDiv.className = "w-14 h-14 rounded-2xl border-2 border-dashed border-slate-300 flex items-center justify-center text-slate-400 bg-slate-100/30";
+                }
+            }
+
+            document.getElementById('active-count').innerText = `${gameState.activeBeachItems.length}/6 רכיבים פעילים`;
+        }
+
+        function showSlotInfo(slotIdx) {
+            const unitNum = slotIdx + 1;
+            if (isUnitCompleted(unitNum)) {
+                const firstLvl = getFirstLevelOfUnit(unitNum);
+                loadLevel(firstLvl);
+                showNotification(`יחידה ${unitNum} הושלמה בהצלחה! ניתן לעיין בשלביה שנית.`, "🏖️");
+            } else if (gameState.slotUnlocked[slotIdx]) {
+                const lvlToLoad = getFirstUncompletedLevelOfUnit(unitNum);
+                loadLevel(lvlToLoad);
+                showNotification(`התחלת פיתוח יחידה ${unitNum}! פתרו את שאלות הקוד כדי להפעיל את הרכיב.`, "⚙️");
+            } else {
+                showNotification(`היחידה נעולה! עליכם להשלים תחילה את יחידה ${unitNum - 1} בהצלחה.`, "🔒");
+            }
+        }
+
+        // 9. Leaderboard renderer
+        function renderLeaderboard() {
+            const container = document.getElementById('leaderboard-container');
+            container.innerHTML = '';
+
+            // Load registered users from localStorage (simulating official class database)
+            let db = JSON.parse(localStorage.getItem('registered_students') || '[]');
+            
+            // Map them to list format
+            let list = db.map(s => ({
+                name: s.name,
+                score: s.score || (s.coins + (s.reputation * 5)),
+                level: s.level || 1,
+                avatar: s.avatar || "🎓",
+                isPlayer: s.username === gameState.username
+            }));
+
+            // Sort by score descending
+            list.sort((a, b) => b.score - a.score);
+
+            // Filter out guest player if active
+            if (gameState.username === 'guest') {
+                list = list.filter(item => !item.isPlayer);
+            }
+
+            if (list.length === 0) {
+                container.innerHTML = `<div class="text-center text-xs text-slate-400 py-8">אין עדיין תלמידים רשומים בטבלת הדירוג. הירשמו במערכת כדי להופיע כאן!</div>`;
+                document.getElementById('local-rank-preview').innerText = "לא מדורג (הירשם)";
+                return;
+            }
+
+            list.forEach((item, index) => {
+                const rank = index + 1;
+                const row = document.createElement('div');
+                row.className = item.isPlayer 
+                    ? "bg-sky-500/25 border-2 border-sky-400 p-3 rounded-2xl flex items-center justify-between shadow-sm animate-pulse"
+                    : "bg-slate-800/80 border border-slate-700/60 p-3 rounded-2xl flex items-center justify-between";
+
+                const leftSide = document.createElement('div');
+                leftSide.className = "flex items-center gap-2.5";
+                
+                const rankBadge = document.createElement('span');
+                rankBadge.className = rank <= 3 
+                    ? "w-6 h-6 rounded-full bg-sky-400 text-slate-900 flex items-center justify-center font-black text-xs"
+                    : "w-6 h-6 rounded-full bg-slate-700 text-slate-300 flex items-center justify-center font-bold text-[10px]";
+                rankBadge.innerText = rank;
+
+                const avatarName = document.createElement('span');
+                avatarName.className = "font-extrabold text-xs flex items-center gap-1.5";
+                avatarName.innerHTML = `<span>${item.avatar}</span> <span>${item.name}</span>`;
+
+                leftSide.appendChild(rankBadge);
+                leftSide.appendChild(avatarName);
+
+                const rightSide = document.createElement('div');
+                rightSide.className = "flex items-center gap-3 text-xs";
+                
+                const levelBadge = document.createElement('span');
+                levelBadge.className = "bg-slate-950 text-sky-400 text-[9px] px-2 py-0.5 rounded font-bold border border-slate-800";
+                levelBadge.innerText = `שלב ${item.level}`;
+
+                const scoreBadge = document.createElement('span');
+                scoreBadge.className = "font-black text-slate-100";
+                scoreBadge.innerText = `${item.score} קוקוסים`;
+
+                rightSide.appendChild(levelBadge);
+                rightSide.appendChild(scoreBadge);
+
+                row.appendChild(leftSide);
+                row.appendChild(rightSide);
+                container.appendChild(row);
+
+                if (item.isPlayer) {
+                    document.getElementById('local-rank-preview').innerText = `מקום ${rank} מתוך ${list.length}`;
+                }
+            });
+        }
+
+        // 10. Teacher Dashboard Renderer
+        function renderTeacherDashboard() {
+            const listContainer = document.getElementById('teacher-students-list');
+            listContainer.innerHTML = '';
+
+            // Load registered students from localStorage (representing Firebase)
+            let db = JSON.parse(localStorage.getItem('registered_students') || '[]');
+            
+            document.getElementById('teacher-students-count').innerText = `${db.length} תלמידים רשומים`;
+
+            if (db.length === 0) {
+                listContainer.innerHTML = `<div class="text-center text-xs text-slate-500 py-6">אין עדיין תלמידים רשומים במערכת.</div>`;
+                document.getElementById('class-avg-level-text').innerText = `שלב 0`;
+                document.getElementById('class-avg-level-bar').style.width = `0%`;
+                return;
+            }
+
+            db.forEach(student => {
+                const card = document.createElement('div');
+                card.onclick = () => showStudentDetails(student);
+                card.className = "bg-slate-900 border border-slate-800 hover:border-emerald-500 p-3 rounded-2xl cursor-pointer transition-all flex items-center justify-between";
+
+                const left = document.createElement('div');
+                left.className = "flex items-center gap-2.5";
+                left.innerHTML = `<span class="text-xl">${student.avatar || '🎓'}</span>
+                                  <div>
+                                      <p class="text-xs font-black text-slate-200">${student.name}</p>
+                                      <p class="text-[9px] text-slate-500">משימה ${levelsData[student.level || 1] ? levelsData[student.level || 1].subLevelName : student.level} פעילה | ${student.completedLevels ? student.completedLevels.length : 0}/30 שלבים הושלמו</p>
+                                  </div>`;
+
+                const right = document.createElement('div');
+                right.className = "text-left text-[10px]";
+                
+                let statusBadge = "";
+                if (student.level === 30) {
+                    statusBadge = "<span class='bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/20 font-bold'>שליטה מלאה (30/30)</span>";
+                } else if (student.level >= 15) {
+                    statusBadge = "<span class='bg-sky-500/10 text-sky-400 px-2 py-0.5 rounded border border-sky-500/20 font-bold'>רמה טובה</span>";
+                } else {
+                    statusBadge = "<span class='bg-rose-500/10 text-rose-400 px-2 py-0.5 rounded border border-rose-500/20 font-bold'>מצריך תרגול</span>";
+                }
+
+                right.innerHTML = statusBadge;
+
+                card.appendChild(left);
+                card.appendChild(right);
+                listContainer.appendChild(card);
+            });
+
+            // Calculate live averages
+            let totalLevel = 0;
+            db.forEach(s => totalLevel += (s.level || 1));
+            const avgLevel = (totalLevel / db.length).toFixed(1);
+            const avgLevelInt = Math.min(30, Math.max(1, Math.round(avgLevel)));
+            const avgLevelName = levelsData[avgLevelInt] ? levelsData[avgLevelInt].subLevelName : avgLevel;
+            document.getElementById('class-avg-level-text').innerText = `שלב ${avgLevelName}`;
+            
+            const progressPct = (avgLevel / 30) * 100;
+            document.getElementById('class-avg-level-bar').style.width = `${progressPct}%`;
+
+            // Calculate concepts mastery based on real student data
+            let mastery1 = 0; // Unit 1 (Constructors: 1-4)
+            let mastery2 = 0; // Unit 2-4 (Composition & Inheritance: 5-16)
+            let mastery3 = 0; // Unit 5 (Overriding: 17-26)
+            let mastery4 = 0; // Unit 6 (Interfaces: 27-30)
+
+            db.forEach(student => {
+                const completed = student.completedLevels || [];
+                
+                let score1 = 0;
+                [1,2,3,4].forEach(l => { if (completed.includes(l)) score1++; });
+                mastery1 += (score1 / 4);
+
+                let score2 = 0;
+                [5,6,7,8,9,10,11,12,13,14,15,16].forEach(l => { if (completed.includes(l)) score2++; });
+                mastery2 += (score2 / 12);
+
+                let score3 = 0;
+                [17,18,19,20,21,22,23,24,25,26].forEach(l => { if (completed.includes(l)) score3++; });
+                mastery3 += (score3 / 10);
+
+                let score4 = 0;
+                [27,28,29,30].forEach(l => { if (completed.includes(l)) score4++; });
+                mastery4 += (score4 / 4);
+            });
+
+            const pct1 = db.length > 0 ? Math.round((mastery1 / db.length) * 100) : 0;
+            const pct2 = db.length > 0 ? Math.round((mastery2 / db.length) * 100) : 0;
+            const pct3 = db.length > 0 ? Math.round((mastery3 / db.length) * 100) : 0;
+            const pct4 = db.length > 0 ? Math.round((mastery4 / db.length) * 100) : 0;
+
+            document.getElementById('mastery-c1').innerText = `${pct1}% שליטה`;
+            document.getElementById('mastery-c2').innerText = `${pct2}% שליטה`;
+            document.getElementById('mastery-c3').innerText = `${pct3}% שליטה`;
+            document.getElementById('mastery-c4').innerText = `${pct4}% שליטה`;
+
+            // Calculate pedagogical focus dynamically
+            const numericAvg = parseFloat(avgLevel);
+            let focusText = "";
+            if (db.length === 0) {
+                focusText = "אין עדיין תלמידים רשומים במערכת. המתן להרשמת תלמיד כדי להציג המלצות פדגוגיות.";
+            } else if (numericAvg < 5.0) {
+                focusText = "הכיתה נמצאת בשלבי הבנאים. מומלץ לוודא הבנה מלאה של תפקיד הפעולה הבונה, בנאי מעתיק, טעינת יתר ושימוש נכון ב-this.";
+            } else if (numericAvg < 17.0) {
+                focusText = "התלמידים מתרגלים כעת את שלבי ההכלה והירושה. מומלץ להקפיד על הבנת ההבדל בין קשר הכלה (Has-A) לקשר ירושה (Is-A) ושימוש נכון ב-super/base.";
+            } else if (numericAvg < 27.0) {
+                focusText = "הכיתה מתקדמת לשלבי הדריסה והפולימורפיזם. מומלץ להציג דוגמאות קוד המדגימות כיצד אובייקטים יורשים מתנהגים בצורה שונה בזמן ריצה.";
+            } else {
+                focusText = "רוב הכיתה השלימה בהצלחה את כל שלבי ה-OOP (כולל ממשקים). מומלץ להתחיל פתרון מבחנים מסכמים ומודלים של שאלות בגרות שלמות.";
+            }
+            document.getElementById('pedagogical-focus-text').innerText = focusText;
+        }
+
+        function showStudentDetails(student) {
+            const details = getStudentDetailsForTeacher(student);
+            document.getElementById('sd-name').innerText = student.name;
+            const completedCount = student.completedLevels ? student.completedLevels.length : 0;
+            const levelName = levelsData[student.level || 1] ? levelsData[student.level || 1].subLevelName : student.level;
+            document.getElementById('sd-meta').innerText = `סטטוס פדגוגי: משימה ${levelName} | ${completedCount}/30 שלבים הושלמו`;
+            document.getElementById('sd-strengths').innerText = details.strengths;
+            document.getElementById('sd-weaknesses').innerText = details.weaknesses;
+            document.getElementById('sd-recommendation').innerText = details.recommendation;
+
+            const panel = document.getElementById('student-detail-panel');
+            panel.classList.remove('hidden');
+            panel.className = "absolute inset-x-0 bottom-0 bg-slate-900 border-t-4 border-emerald-500 p-5 rounded-t-3xl shadow-2xl transition-all transform translate-y-0 z-25";
+        }
+
+        function getStudentDetailsForTeacher(student) {
+            const level = student.level || 1;
+            let strengths = "";
+            let weaknesses = "";
+            let recommendation = "";
+
+            if (level <= 4) {
+                strengths = "מראה הבנה בבנאים, טעינת יתר, בנאי מעתיק ואתחול תכונות באמצעות this.";
+                weaknesses = "נדרש מעקב אחר הבנת עקרון ההכלה (Composition).";
+                recommendation = "המלץ לתלמיד להתקדם ליחידת ההכלה ולפתור את שלב 2.1.";
+            } else if (level <= 8) {
+                strengths = "מראה הבנה טובה של הכלה (Composition), אתחול אובייקטים ומערכים קבועים.";
+                weaknesses = "מתחיל את נושא ההורשה, נדרשת הבהרה לגבי קשר ירושה Is-A.";
+                recommendation = "כוון את התלמיד להתחיל את יחידת ההורשה בשלב 3.1.";
+            } else if (level <= 14) {
+                strengths = "הבין יפה את יחסי ההורשה (Is-A), extends/ירושה ושימוש ב-protected.";
+                weaknesses = "שוכח לפעמים לקרוא לבנאי האב super() בראש בנאי הבן.";
+                recommendation = "תרגל איתו זימון בנאי אב בשאלות בגרות של מחלקות יורשות בשלב 4.1.";
+            } else if (level <= 16) {
+                strengths = "מאתחל כראוי את בנאי האב באמצעות super/base ומעביר פרמטרים.";
+                weaknesses = "מתחיל ללמוד דריסת שיטות (Overriding) ופולימורפיזם.";
+                recommendation = "הראה לו כיצד דריסת שיטה מאפשרת לשנות את התנהגות האב ביחידה 5.";
+            } else if (level <= 26) {
+                strengths = "ביצע בהצלחה דריסת שיטה (Overriding) והפעלת פולימורפיזם בזמן ריצה במערכים.";
+                weaknesses = "לומד כעת ממשקים (Interfaces), נוטה להתבלבל בין ממשק למחלקה.";
+                recommendation = "הסבר לו שממשק הוא חוזה התנהגותי בלבד ללא מימושים ושדות מופע ביחידה 6.";
+            } else {
+                strengths = "שליטה מצוינת! מימש בהצלחה ממשקים ופולימורפיזם מלא בחוף.";
+                weaknesses = "אין נקודות חולשה מיוחדות. מוכן לחלוטין לשאלות OOP בבגרות.";
+                recommendation = "אתגר אותו בפרויקט תכנות עצמאי מורכב המשלב ממשקים מרובים.";
+            }
+
+            return { strengths, weaknesses, recommendation };
+        }
+
+        function closeStudentDetails() {
+            const panel = document.getElementById('student-detail-panel');
+            panel.className = "absolute inset-x-0 bottom-0 bg-slate-900 border-t border-slate-800 p-5 rounded-t-3xl shadow-2xl transition-all transform translate-y-full hidden z-25";
+        }
+
+        // 11. Teacher auth triggers
+        function handleTeacherLogin() {
+            const passVal = document.getElementById('teacher-auth-pass').value;
+            if (passVal === 'teacher123' || passVal === 'מורה100') {
+                gameState.isTeacherAuthorized = true;
+                document.getElementById('teacher-auth-screen').classList.add('hidden');
+                document.getElementById('teacher-dashboard-content').classList.remove('hidden');
+                document.getElementById('teacher-auth-error').classList.add('hidden');
+                renderTeacherDashboard();
+            } else {
+                document.getElementById('teacher-auth-error').classList.remove('hidden');
+            }
+        }
+
+        function handleTeacherLogout() {
+            gameState.isTeacherAuthorized = false;
+            document.getElementById('teacher-dashboard-content').classList.add('hidden');
+            document.getElementById('teacher-auth-screen').classList.remove('hidden');
+            document.getElementById('teacher-auth-pass').value = '';
+        }
+
+        function showNotification(text, emoji = "💡") {
+            const box = document.getElementById('custom-alert-box');
+            document.getElementById('custom-alert-emoji').innerText = emoji;
+            document.getElementById('custom-alert-text').innerText = text;
+            
+            box.classList.remove('hidden');
+            setTimeout(() => {
+                box.classList.add('hidden');
+            }, 4500);
+        }
+
+        function triggerFloatingText(text, containerId) {
+            const container = document.getElementById(containerId);
+            const floater = document.createElement('span');
+            floater.className = "absolute text-xs font-black text-amber-950 bg-amber-300 px-2 py-0.5 rounded-full shadow-md float-emoji z-30 font-mono";
+            floater.innerText = text;
+
+            floater.style.left = `${Math.floor(Math.random() * 60) + 20}%`;
+            floater.style.bottom = "10px";
+
+            container.appendChild(floater);
+
+            setTimeout(() => {
+                floater.remove();
+            }, 2000);
+        }
+
+        window.onload = function() {
+            toggleAuthTab('login');
+        };
+    </script>
+</body>
+</html>
