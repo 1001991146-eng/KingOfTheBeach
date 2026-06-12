@@ -52,6 +52,16 @@
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.4);
         }
+        code {
+            direction: ltr !important;
+            display: inline-block;
+            unicode-bidi: embed;
+            text-align: left;
+        }
+        pre {
+            direction: ltr !important;
+            text-align: left !important;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col text-slate-800 selection:bg-sky-200">
@@ -127,10 +137,10 @@
                         </div>
                     </div>
                     <h2 id="level-title" class="text-2xl font-black text-slate-800 mt-2 mb-3">ברוכים הבאים לחוף ה-OOP שלכם!</h2>
-                    <p id="level-description" class="text-slate-600 text-sm leading-relaxed mb-4">
+                    <p id="level-description" class="text-slate-600 text-sm leading-relaxed mb-4 text-right" dir="rtl">
                         הקיוסק של החוף ריק! עלינו לתכנת את מחלקת הבסיס <code class="bg-slate-100 px-1.5 py-0.5 rounded font-mono text-rose-600">BeachItem</code> שממנה נירש את כל המוצרים בחוף. השלימו את הקוד בצד שמאל כדי ליצור את התבנית הנכונה ולייצר את פריטי החוף הראשונים שלכם!
                     </p>
-                    <div id="tip-box" class="bg-sky-50 border-r-4 border-sky-500 p-3 rounded-l-xl text-xs text-sky-800 flex items-start gap-2">
+                    <div id="tip-box" class="bg-sky-50 border-r-4 border-sky-500 p-3 rounded-l-xl text-xs text-sky-800 flex items-start gap-2 text-right" dir="rtl">
                         <span class="text-base">💡</span>
                         <div>
                             <strong class="font-bold block mb-0.5">טיפ מורה לבגרות:</strong>
@@ -149,7 +159,7 @@
                             <h3 class="text-sm font-black text-amber-900" id="quick-lesson-title">שיעור מהיר: שם השיעור</h3>
                             <span class="text-[10px] bg-amber-200 text-amber-800 font-extrabold px-2 py-0.5 rounded-full" id="quick-lesson-concept">מושג יסוד</span>
                         </div>
-                        <p id="quick-lesson-text" class="text-slate-700 text-xs leading-relaxed mt-2"></p>
+                        <p id="quick-lesson-text" class="text-slate-700 text-xs leading-relaxed mt-2 text-right" dir="rtl"></p>
                     </div>
                 </div>
             </div>
@@ -449,7 +459,7 @@
                     <span id="feedback-icon" class="text-3xl">🎉</span>
                     <div class="flex-grow">
                         <h4 id="feedback-title" class="text-base font-black text-slate-800">כל הכבוד! קומפילציה עברה בהצלחה!</h4>
-                        <p id="feedback-explanation" class="text-xs text-slate-600 mt-1 leading-relaxed">
+                        <p id="feedback-explanation" class="text-xs text-slate-600 mt-1 leading-relaxed text-right" dir="rtl">
                             הבנאי נוצר בצורה מעולה. תכונות הפריט אותחלו כראוי וקוד ה-this עשה את עבודתו. כעת נוצר לכם הפריט הראשון בחוף!
                         </p>
                     </div>
