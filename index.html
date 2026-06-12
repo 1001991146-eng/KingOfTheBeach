@@ -716,7 +716,10 @@
 
             const usernameKey = userVal.toLowerCase();
             let db = JSON.parse(localStorage.getItem('registered_students') || '[]');
-            let userObj = db.find(u => u.username === usernameKey);
+            let userObj = db.find(u => 
+                (u.username && u.username.trim().toLowerCase() === usernameKey.trim()) || 
+                (u.name && u.name.trim().toLowerCase() === usernameKey.trim())
+            );
             
             if (!userObj) {
                 showAuthError("משתמש לא קיים במערכת. אנא הרשמו בלשונית ההרשמה.");
