@@ -1,0 +1,10 @@
+{
+  "name": "king-of-the-beach-queue",
+  "version": "1.0.0",
+  "description": "King of the Beach - Queue Edition",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npx http-server -p 3001 -c-1"
+  },
+  "dependencies": {}
+}
